@@ -661,15 +661,32 @@ function toast(msg){
   const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200);
 }
+let VOICES=[];
+function loadVoices(){ try{ if("speechSynthesis" in window) VOICES=speechSynthesis.getVoices()||[]; }catch(e){} }
+if("speechSynthesis" in window){
+  loadVoices();
+  try{ speechSynthesis.addEventListener("voiceschanged",loadVoices); }catch(e){}
+}
 function speak(text){
   if(!("speechSynthesis" in window)){toast("Audio is not available on this device."); return;}
-  const voices=speechSynthesis.getVoices();
-  const v=voices.find(x=>x.lang && x.lang.toLowerCase().startsWith("ar"));
-  if(!v && voices.length){toast("No Arabic voice found. Add one in your device's text-to-speech settings."); return;}
-  const u=new SpeechSynthesisUtterance(text); u.lang="ar-SA"; u.rate=0.8; if(v) u.voice=v;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  loadVoices();
+  const isAndroid=/Android/i.test(navigator.userAgent||"");
+  const v=VOICES.find(x=>x.lang && x.lang.toLowerCase().replace("_","-").startsWith("ar"));
+  if(!v && VOICES.length && !isAndroid){toast("No Arabic voice found. Add one in your device's text-to-speech settings."); return;}
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=(v && v.lang) ? v.lang.replace("_","-") : "ar-SA";
+  u.rate=0.8; u.volume=1;
+  if(v && v.localService) u.voice=v;
+  u.onerror=e=>{
+    const c=e && e.error;
+    if(c==="canceled" || c==="interrupted") return;
+    toast(c==="language-unavailable" || c==="synthesis-unavailable"
+      ? "The Arabic voice is not available. Install Arabic voice data in your text-to-speech settings."
+      : "Audio error: "+(c||"unknown"));
+  };
+  const go=()=>{ try{ speechSynthesis.speak(u); }catch(e){ toast("Audio error: "+e.message); } };
+  if(speechSynthesis.speaking || speechSynthesis.pending){ speechSynthesis.cancel(); setTimeout(go,100); } else go();
 }
-if("speechSynthesis" in window) speechSynthesis.getVoices();
 
 /* ---------- VIEWS ---------- */
 function wordRow(w){
