@@ -138,6 +138,28 @@ nav button.on{color:var(--ink);border-top-color:var(--red)}
 .gh{font-size:17px;margin:16px 0 2px}
 .mist{margin:16px 0 0;padding:10px 14px;border-left:3px solid var(--red);background:var(--paper2);font-size:15px}
 .lnk{text-decoration:underline;font-weight:700}
+
+.bar{display:flex;justify-content:flex-end;padding:10px 20px 0}
+.who{display:flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--paper2);font-weight:600}
+.who .sw{color:var(--ink2);font-weight:500;font-size:13px}
+.av{font-size:22px;line-height:1}
+.pf{margin:0 20px 14px;padding:14px;border:1px solid var(--rule);border-radius:8px;background:var(--paper)}
+.pf.cur{border:2px solid var(--ink)}
+.pfh{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.pfh .av{font-size:36px}
+.pfs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.pfs b{display:block;font-family:var(--serif);font-size:22px;line-height:1.1}
+.pfs span{font-size:12px;color:var(--ink2)}
+.dots{display:flex;gap:6px;margin:8px 0}
+.dot{width:30px;height:30px;border-radius:50%;border:1px solid var(--rule);display:grid;place-items:center;font-size:12px;color:var(--ink2)}
+.dot.on{background:var(--teal);border-color:var(--teal);color:var(--paper)}
+.avs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.avs button{width:46px;height:46px;border:1px solid var(--rule);border-radius:8px;font-size:24px;background:var(--paper)}
+.avs button.on{border:2px solid var(--ink);background:var(--paper2)}
+.fi{width:100%;padding:12px;border:1.5px solid var(--ink2);border-radius:6px;font:inherit;background:var(--paper);color:var(--ink)}
+textarea.fi{min-height:130px;font-size:13px}
+.sec{margin:20px 20px 0;padding-top:14px;border-top:1px solid var(--rule)}
+.sec h2{font-size:20px;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -392,6 +414,7 @@ const LETTERS = [
 ["و","wāw","w, or a long 'oo'","وَلَدٌ","walad","boy"],
 ["ي","yāʾ","y, or a long 'ee'","يَدٌ","yad","hand"]
 ];
+const LNAME = {"ا":"أَلِف","ب":"بَاء","ت":"تَاء","ث":"ثَاء","ج":"جِيم","ح":"حَاء","خ":"خَاء","د":"دَال","ذ":"ذَال","ر":"رَاء","ز":"زَيْن","س":"سِين","ش":"شِين","ص":"صَاد","ض":"ضَاد","ط":"طَاء","ظ":"ظَاء","ع":"عَيْن","غ":"غَيْن","ف":"فَاء","ق":"قَاف","ك":"كَاف","ل":"لَام","م":"مِيم","ن":"نُون","ه":"هَاء","و":"وَاو","ي":"يَاء"};
 const NONJOIN = ["ا","د","ذ","ر","ز","و"];
 const MARKS = [
 ["بَ","ba","fatḥa: short a"],["بُ","bu","ḍamma: short u"],["بِ","bi","kasra: short i"],
@@ -626,20 +649,53 @@ DAYS.forEach((D,di)=>{
   D.quran.forEach((w,i)=>ALL.push({id:(di+1)+"q"+i,day:di+1,ar:w[0],tr:w[1],en:w[2],q:true}));
 });
 
-async function load(){
+const KEY2 = "arabic30-v2";
+const P = {profiles:[], current:null};
+const AVATARS = ["🦁","🐘","🐪","🌙","⭐","🌴","🦅","🐢"];
+function blank(){ return {day:1,tasks:{},cards:{},stars:0,active:[],glang:"en",islam:{done:{},best:{}}}; }
+function newId(){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function curProfile(){ return P.profiles.find(p=>p.id===P.current) || P.profiles[0]; }
+function snapshot(){
+  const pr=curProfile(); if(!pr) return;
+  pr.data={day:S.day,tasks:S.tasks,cards:S.cards,stars:S.stars,active:S.active,glang:S.glang,islam:S.islam};
+  pr.updated=Date.now();
+}
+function loadInto(pr){
+  const d=Object.assign(blank(), JSON.parse(JSON.stringify(pr.data||{})));
+  d.islam=Object.assign({done:{},best:{}}, d.islam||{});
+  Object.keys(S).forEach(k=>delete S[k]);
+  Object.assign(S,d);
+}
+async function persist(){
+  const v=JSON.stringify(P);
   try{
-    let v=null;
-    if(window.storage){ const r=await window.storage.get(KEY); v=r&&r.value; }
-    else { v=localStorage.getItem(KEY); }
-    if(v) Object.assign(S, JSON.parse(v));
+    if(window.storage) await window.storage.set(KEY2, v);
+    else localStorage.setItem(KEY2, v);
   }catch(e){}
 }
-async function save(){
+function save(){ snapshot(); persist(); }
+async function load(){
+  let raw=null, old=null;
   try{
-    const v=JSON.stringify(S);
-    if(window.storage) await window.storage.set(KEY, v);
-    else localStorage.setItem(KEY, v);
+    if(window.storage){
+      try{ const r=await window.storage.get(KEY2); raw=r&&r.value; }catch(e){}
+      if(!raw){ try{ const o=await window.storage.get(KEY); old=o&&o.value; }catch(e){} }
+    }else{
+      raw=localStorage.getItem(KEY2);
+      if(!raw) old=localStorage.getItem(KEY);
+    }
   }catch(e){}
+  if(raw){
+    try{ const d=JSON.parse(raw); if(d && Array.isArray(d.profiles) && d.profiles.length){ P.profiles=d.profiles; P.current=d.current; } }catch(e){}
+  }
+  if(!P.profiles.length){
+    const data=blank();
+    if(old){ try{ Object.assign(data, JSON.parse(old)); }catch(e){} }
+    P.profiles=[{id:newId(),name:"Me",avatar:AVATARS[0],data,updated:Date.now()}];
+    P.current=P.profiles[0].id;
+  }
+  if(!P.profiles.some(p=>p.id===P.current)) P.current=P.profiles[0].id;
+  loadInto(curProfile());
 }
 
 /* ---------- HELPERS ---------- */
@@ -742,7 +798,7 @@ function viewToday(){
       ? `<div class="done-banner"><h2>Day ${n} finished</h2><p class="note">Good work. Tomorrow is better than today if you come back.</p><button class="btn wide" data-a="next">Start day ${n+1}</button></div>`
       : `<div class="done-banner"><h2>You finished all 30 days</h2><p class="note">Keep your flashcards going every day, and book a tutor for speaking practice.</p></div>`;
   }
-  h+=`<button class="reset" data-a="reset">${UI.resetArm?"Tap again to erase all progress":"Reset all progress"}</button>`;
+  h+=`<button class="reset" data-a="reset">${UI.resetArm?"Tap again to erase this profile's progress":"Reset this profile's progress"}</button>`;
   return h;
 }
 
@@ -793,7 +849,7 @@ function viewLetters(){
     h+=`<p class="tip">Tap a letter to see its name, sound, shapes and an example word.</p>`;
   }else{
     const L=LETTERS[i];
-    h+=`<div class="detail"><span class="ar big" lang="ar">${L[0]}</span><h2>${L[1]}</h2><p class="snd">${L[2]}</p><div class="forms">${formsOf(L[0]).map(f=>`<div><span class="ar" lang="ar">${f[1]}</span><small>${f[0]}</small></div>`).join("")}</div>${NONJOIN.includes(L[0])?`<p class="note" style="text-align:center">This letter never joins to the letter after it.</p>`:""}<div class="ex"><div class="wl"><span class="tr">${L[4]}</span><span class="en">${L[5]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${L[3]}" aria-label="Hear ${L[4]}">${L[3]}</button></div></div>`;
+    h+=`<div class="detail"><span class="ar big" lang="ar">${L[0]}</span><h2>${L[1]}</h2><p class="snd">${L[2]}</p><div class="forms">${formsOf(L[0]).map(f=>`<div><span class="ar" lang="ar">${f[1]}</span><small>${f[0]}</small></div>`).join("")}</div>${NONJOIN.includes(L[0])?`<p class="note" style="text-align:center">This letter never joins to the letter after it.</p>`:""}<div class="row2" style="margin:12px 0 4px"><button class="btn sm ghost" data-a="speak" data-s="${LNAME[L[0]]}">Hear the name</button><button class="btn sm ghost" data-a="speak" data-s="${L[0]}َ">Hear the sound</button></div><div class="ex"><div class="wl"><span class="tr">${L[4]}</span><span class="en">${L[5]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${L[3]}" aria-label="Hear ${L[4]}">${L[3]}</button></div></div>`;
   }
   h+=`<div class="grid">${LETTERS.map((L,k)=>`<button class="lbtn ${k===i?"sel":""}" lang="ar" data-a="letter" data-i="${k}" aria-label="${L[1]}">${L[0]}</button>`).join("")}</div>`;
   h+=`<div class="pad marks"><h2 style="font-size:20px;margin-bottom:6px">Vowels and marks</h2><p class="note">Shown on the letter ب (b).</p>${MARKS.map(m=>`<div class="wr"><div class="wl"><span class="tr">${m[1]}</span><span class="en">${m[2]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${m[0]}" aria-label="Hear ${m[1]}">${m[0]}</button></div>`).join("")}</div>`;
@@ -874,6 +930,139 @@ function viewIslam(){
   return h;
 }
 
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function captureInputs(){
+  const g=id=>{ const e=document.getElementById(id); return (e && typeof e.value==="string") ? e.value : null; };
+  const a=g("pname"); if(a!==null) UI.newName=a;
+  const b=g("pcode"); if(b!==null && UI.pbox==="import") UI.pcode=b;
+  const c=g("prname"); if(c!==null) UI.prname=c;
+}
+function pscore(pr){
+  const d=Object.assign(blank(), pr.data||{});
+  let n=d.stars||0;
+  n+=Object.values(d.tasks||{}).filter(Boolean).length;
+  Object.values(d.cards||{}).forEach(c=>{ n+=1+((c&&c.box)||0); });
+  const isl=d.islam||{};
+  n+=Object.values(isl.done||{}).filter(Boolean).length;
+  n+=Object.keys(isl.best||{}).length;
+  return n;
+}
+function profStats(pr){
+  const d=Object.assign(blank(), pr.data||{}); d.islam=Object.assign({done:{},best:{}}, d.islam||{});
+  const now=Date.now(), cards=d.cards||{}, act=d.active||[];
+  const started=Object.keys(cards).length;
+  const known=Object.values(cards).filter(c=>c.box>=4).length;
+  const due=ALL.filter(c=>c.day<=d.day && cards[c.id] && cards[c.id].due<=now).length;
+  let daysDone=0;
+  for(let n=1;n<=30;n++){ let c=0; for(let i=0;i<6;i++) if((d.tasks||{})[n+":"+i]) c++; if(c===6) daysDone++; }
+  const units=ISLAM.filter((u,i)=>d.islam.done[i]).length;
+  let st=0; const dt=new Date(); if(!act.includes(fmt(dt))) dt.setDate(dt.getDate()-1);
+  while(act.includes(fmt(dt))){ st++; dt.setDate(dt.getDate()-1); }
+  const week=[]; const letters=["S","M","T","W","T","F","S"];
+  for(let k=6;k>=0;k--){ const x=new Date(); x.setDate(x.getDate()-k); week.push({on:act.includes(fmt(x)), l:letters[x.getDay()]}); }
+  return {day:d.day,streak:st,daysDone,started,known,due,stars:d.stars||0,units,week};
+}
+function switchTo(id){
+  if(id===P.current) return;
+  snapshot(); P.current=id; loadInto(curProfile());
+  UI.view=Math.min(Math.max(S.day,1),30);
+  UI.q=null; UI.quiz=null; UI.iq=null; UI.iopen=null; UI.gopen=null; UI.letter=null; UI.renameId=null; UI.pbox=null;
+  UI.tab="today"; persist(); window.scrollTo(0,0);
+}
+function addProfile(){
+  const name=(UI.newName||"").trim().slice(0,20);
+  if(!name){ toast("Type a name first."); return; }
+  if(P.profiles.length>=8){ toast("Up to 8 profiles."); return; }
+  const used=P.profiles.map(x=>x.avatar);
+  const av=UI.newAv || AVATARS.find(x=>!used.includes(x)) || AVATARS[0];
+  snapshot();
+  P.profiles.push({id:newId(),name,avatar:av,data:blank(),updated:Date.now()});
+  UI.newName=""; UI.newAv=null; persist(); toast(name+" added.");
+}
+function renameProfile(id){
+  const name=(UI.prname||"").trim().slice(0,20);
+  if(!name){ toast("Type a name first."); return; }
+  const pr=P.profiles.find(x=>x.id===id); if(pr) pr.name=name;
+  UI.renameId=null; persist();
+}
+function deleteProfile(id){
+  if(P.profiles.length<=1){ toast("You need at least one profile."); return; }
+  if(UI.delArm!==id){ UI.delArm=id; return; }
+  const wasCurrent=(P.current===id);
+  if(!wasCurrent) snapshot();
+  P.profiles=P.profiles.filter(x=>x.id!==id);
+  UI.delArm=null;
+  if(wasCurrent){
+    P.current=P.profiles[0].id; loadInto(curProfile());
+    UI.view=Math.min(Math.max(S.day,1),30); UI.q=null; UI.quiz=null; UI.iq=null; UI.iopen=null;
+  }
+  persist();
+}
+function exportObj(){ snapshot(); return {app:"arabic30",v:2,exported:Date.now(),profiles:P.profiles}; }
+function copyCode(){
+  const text=JSON.stringify(exportObj());
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast("Backup code copied."),()=>toast("Could not copy. Tap the text box and copy it by hand."));
+  }else toast("Tap the text box and copy it by hand.");
+}
+function cleanProfile(ip){
+  if(!ip || typeof ip.id!=="string" || !ip.data || typeof ip.data!=="object") return null;
+  const d=Object.assign(blank(), ip.data); d.islam=Object.assign({done:{},best:{}}, d.islam||{});
+  return {id:ip.id.slice(0,40), name:String(ip.name||"Learner").slice(0,20), avatar:AVATARS.includes(ip.avatar)?ip.avatar:AVATARS[0], data:d, updated:Number(ip.updated)||Date.now()};
+}
+function mergeProfiles(list){
+  let added=0, updated=0;
+  list.forEach(raw=>{
+    const ip=cleanProfile(raw); if(!ip) return;
+    const ex=P.profiles.find(x=>x.id===ip.id);
+    if(!ex){ P.profiles.push(ip); added++; }
+    else if(pscore(ip)>pscore(ex)){ ex.name=ip.name; ex.avatar=ip.avatar; ex.data=ip.data; ex.updated=ip.updated; updated++; }
+  });
+  return [added,updated];
+}
+function doImport(){
+  let obj; try{ obj=JSON.parse((UI.pcode||"").trim()); }catch(e){ obj=null; }
+  if(!obj || obj.app!=="arabic30" || !Array.isArray(obj.profiles)){ toast("That backup code is not valid."); return; }
+  snapshot();
+  const r=mergeProfiles(obj.profiles);
+  loadInto(curProfile());
+  UI.view=Math.min(Math.max(S.day,1),30);
+  UI.pbox=null; UI.pcode=""; persist();
+  toast("Imported: "+r[0]+" new, "+r[1]+" updated.");
+}
+function viewFamily(){
+  snapshot();
+  let h=`<header class="top"><h1>Who is learning?</h1><p class="theme">Each person has their own progress on this device. Tap Switch to change who is using the app.</p></header>`;
+  P.profiles.forEach(pr=>{
+    const st=profStats(pr), isCur=pr.id===P.current;
+    h+=`<section class="pf ${isCur?"cur":""}"><div class="pfh"><span class="av">${pr.avatar}</span><div><b style="font-size:18px">${esc(pr.name)}</b>${isCur?` <span class="note">(using now)</span>`:""}<div class="note">Day ${st.day} of 30</div></div></div>`;
+    h+=`<div class="pfs"><div><b>${st.streak}</b><span>day streak</span></div><div><b>${st.daysDone}</b><span>days finished</span></div><div><b>${st.stars}</b><span>stars</span></div><div><b>${st.started}</b><span>words started</span></div><div><b>${st.known}</b><span>words known well</span></div><div><b>${st.due}</b><span>cards due</span></div></div>`;
+    h+=`<p class="note">Islamic studies: ${st.units} of ${ISLAM.length} units finished</p>`;
+    h+=`<div class="dots" role="img" aria-label="Activity in the last 7 days">${st.week.map(w=>`<span class="dot ${w.on?"on":""}">${w.l}</span>`).join("")}</div>`;
+    if(UI.renameId===pr.id){
+      h+=`<input class="fi" id="prname" value="${esc(pr.name)}" maxlength="20" aria-label="New name"><p style="margin-top:8px"><button class="btn sm" data-a="psave" data-id="${pr.id}">Save name</button> <button class="btn sm ghost" data-a="pcancel">Cancel</button></p>`;
+    }else{
+      h+=`<p style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${isCur?"":`<button class="btn sm" data-a="pswitch" data-id="${pr.id}">Switch to ${esc(pr.name)}</button>`}<button class="btn sm ghost" data-a="prename" data-id="${pr.id}">Rename</button><button class="btn sm ghost" data-a="pdel" data-id="${pr.id}">${UI.delArm===pr.id?"Tap again to delete":"Delete"}</button></p>`;
+    }
+    h+=`</section>`;
+  });
+  const chosen=UI.newAv||"";
+  h+=`<div class="sec"><h2>Add a person</h2><p class="note">Give each child a profile so their progress stays separate.</p><input class="fi" id="pname" maxlength="20" placeholder="Name" aria-label="Name" value="${esc(UI.newName||"")}"><div class="avs" role="group" aria-label="Pick a picture">${AVATARS.map(a=>`<button class="${a===chosen?"on":""}" data-a="pav" data-v="${a}" aria-label="Picture ${a}">${a}</button>`).join("")}</div><button class="btn" data-a="padd">Add profile</button></div>`;
+  h+=`<div class="sec"><h2>Share progress between devices</h2><p class="note">Progress is saved on each device. To see a child's progress on your phone, make a backup code on their device, then import it on yours. Newer progress wins.</p><p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm ghost" data-a="pexport">Make a backup code</button><button class="btn sm ghost" data-a="pimport">Import a backup code</button></p>`;
+  if(UI.pbox==="export"){
+    h+=`<textarea class="fi" id="pcodeout" readonly onfocus="this.select()" aria-label="Backup code">${esc(JSON.stringify(exportObj()))}</textarea><p style="margin-top:8px"><button class="btn sm" data-a="pcopy">Copy code</button> <button class="btn sm ghost" data-a="pcancel">Close</button></p>`;
+  }
+  if(UI.pbox==="import"){
+    h+=`<textarea class="fi" id="pcode" placeholder="Paste the backup code here" aria-label="Paste backup code">${esc(UI.pcode||"")}</textarea><p style="margin-top:8px"><button class="btn sm" data-a="pdoimport">Import</button> <button class="btn sm ghost" data-a="pcancel">Cancel</button></p>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+function bar(){
+  const pr=curProfile();
+  return `<div class="bar"><button class="who" data-a="family" aria-label="Profiles. Using ${esc(pr.name)}. Tap to switch."><span class="av">${pr.avatar}</span><span>${esc(pr.name)}</span><span class="sw">Switch</span></button></div>`;
+}
+
 function makeOpts(){
   const q=UI.quiz, c=q.qs[q.i];
   const pool=shuffle(ALL.filter(x=>x.day<=S.day && x.en!==c.en));
@@ -912,16 +1101,18 @@ function nav(){
   return `<nav aria-label="Sections"><div class="in">${t.map(x=>`<button class="${UI.tab===x[0]?"on":""}" data-a="tab" data-t="${x[0]}" ${UI.tab===x[0]?'aria-current="page"':""}>${x[1]}</button>`).join("")}</div></nav>`;
 }
 function render(){
-  const v={today:viewToday,cards:viewCards,letters:viewLetters,grammar:viewGrammar,islam:viewIslam,quiz:viewQuiz}[UI.tab]();
-  $app.innerHTML=v+nav();
+  const v={today:viewToday,cards:viewCards,letters:viewLetters,grammar:viewGrammar,islam:viewIslam,quiz:viewQuiz,family:viewFamily}[UI.tab]();
+  $app.innerHTML=bar()+v+nav();
 }
 
 /* ---------- ACTIONS ---------- */
 document.addEventListener("click",e=>{
   const el=e.target.closest("[data-a]"); if(!el) return;
   const a=el.dataset.a;
+  captureInputs();
   if(a==="speak"){ speak(el.dataset.s); return; }
   if(a!=="reset") UI.resetArm=false;
+  if(a!=="pdel") UI.delArm=null;
   switch(a){
     case "tab": UI.tab=el.dataset.t; if(UI.tab==="cards") UI.q=null; window.scrollTo(0,0); break;
     case "view": UI.view=+el.dataset.n; break;
@@ -940,6 +1131,7 @@ document.addEventListener("click",e=>{
     case "letter": {
       if(el.dataset.ch){ UI.letter=LETTERS.findIndex(L=>L[0]===el.dataset.ch); UI.tab="letters"; window.scrollTo(0,0); }
       else { UI.letter=+el.dataset.i; window.scrollTo(0,0); }
+      speak(LNAME[LETTERS[UI.letter][0]]);
       break;
     }
     case "qstart": {
@@ -980,6 +1172,18 @@ document.addEventListener("click",e=>{
       } else makeIOpts();
       break;
     }
+    case "family": UI.tab="family"; UI.pbox=null; UI.renameId=null; window.scrollTo(0,0); break;
+    case "pswitch": switchTo(el.dataset.id); break;
+    case "pav": UI.newAv=el.dataset.v; break;
+    case "padd": addProfile(); break;
+    case "prename": UI.renameId=el.dataset.id; UI.prname=""; break;
+    case "psave": renameProfile(el.dataset.id); break;
+    case "pcancel": UI.renameId=null; UI.pbox=null; break;
+    case "pdel": deleteProfile(el.dataset.id); break;
+    case "pexport": UI.pbox="export"; break;
+    case "pimport": UI.pbox="import"; UI.pcode=""; break;
+    case "pcopy": copyCode(); break;
+    case "pdoimport": doImport(); break;
     case "reset":
       if(!UI.resetArm){ UI.resetArm=true; break; }
       S.day=1; S.tasks={}; S.cards={}; S.stars=0; S.active=[]; S.islam={done:{},best:{}}; UI.iopen=null; UI.iq=null; UI.view=1; UI.q=null; UI.quiz=null; UI.resetArm=false; save(); window.scrollTo(0,0);
