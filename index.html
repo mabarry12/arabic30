@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Arabic 30">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="color-scheme" content="light dark">
+<title>Arabic in 30 Days</title>
+<style>
+:root{
+  --paper:#F6F8FB; --paper2:#E9EEF6; --ink:#14213D; --ink2:#4F5E78;
+  --rule:#C6D3E5; --red:#C8372D; --teal:#1B7F6B; --star:#C98F0A;
+  --ar:"Amiri","Noto Naskh Arabic","Scheherazade New","Geeza Pro","Traditional Arabic","Segoe UI",serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0F1626; --paper2:#18223A; --ink:#E8EDF7; --ink2:#9CAAC4;
+    --rule:#2B3957; --red:#E8695F; --teal:#4CC2A8; --star:#F0C14B;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans)}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+#app{max-width:520px;margin:0 auto;padding:env(safe-area-inset-top) 0 calc(88px + env(safe-area-inset-bottom));min-height:100vh}
+h1,h2,h3{font-family:var(--serif);margin:0;font-weight:700}
+p{margin:0}
+
+.top{padding:20px 20px 6px}
+.top h1{font-size:30px;line-height:1.15}
+.top .theme{color:var(--ink2);margin-top:2px}
+.stats{display:flex;gap:22px;padding:10px 20px 14px}
+.stat b{display:block;font-family:var(--serif);font-size:22px;line-height:1.1}
+.stat span{font-size:13px;color:var(--ink2)}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 20px 14px;scrollbar-width:thin}
+.chip{flex:0 0 auto;width:38px;height:38px;border:1px solid var(--rule);border-radius:4px;font-family:var(--serif);font-weight:700;color:var(--ink2)}
+.chip.done{background:var(--teal);border-color:var(--teal);color:var(--paper)}
+.chip.here{border:2px solid var(--ink);color:var(--ink)}
+.chip.lock{border-style:dashed;opacity:.7}
+.chip.sel{box-shadow:0 3px 0 var(--red)}
+
+.list{position:relative;border-top:1px solid var(--rule)}
+.list::before{content:"";position:absolute;left:52px;top:0;bottom:0;width:2px;background:var(--red);opacity:.75}
+.task{display:grid;grid-template-columns:52px 1fr;border-bottom:1px solid var(--rule)}
+.chk{width:28px;height:28px;margin:16px auto 0;border:2px solid var(--ink2);border-radius:5px;background:var(--paper);font-weight:800;line-height:1;color:var(--paper);position:relative;z-index:1}
+.task.on .chk{background:var(--teal);border-color:var(--teal)}
+.tb{padding:14px 20px 18px 16px;min-width:0}
+.tb h3{font-size:18px;margin-bottom:4px}
+.task.on .tb h3{color:var(--ink2);text-decoration:line-through;text-decoration-thickness:1px}
+.note{color:var(--ink2);font-size:15px;margin:4px 0 8px}
+.tip{margin:0 20px 14px;padding:10px 14px;border-left:3px solid var(--red);background:var(--paper2);font-size:15px}
+
+.ar{font-family:var(--ar);direction:rtl;unicode-bidi:isolate}
+.wr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px dashed var(--rule)}
+.wr:first-of-type{border-top:0}
+.wl{display:flex;flex-direction:column;min-width:0}
+.wl .tr{font-weight:600}
+.wl .en{color:var(--ink2);font-size:15px}
+.wr .ar{font-size:28px;line-height:1.7;text-align:right}
+.lt{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.lt .ar{width:56px;height:56px;border:1px solid var(--rule);border-radius:6px;font-size:34px;line-height:1.5;background:var(--paper2)}
+
+.btn{display:inline-block;padding:13px 20px;border-radius:6px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:700;text-align:center}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.sm{padding:8px 14px;font-size:15px}
+.btn.wide{width:100%}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pad{padding:14px 20px}
+.pad p+p{margin-top:10px}
+.done-banner{margin:18px 20px;padding:16px;border:2px solid var(--teal);border-radius:6px}
+.done-banner h2{font-size:20px;margin-bottom:6px}
+
+.fc{margin:6px 20px 16px;border:1px solid var(--rule);border-radius:6px;background:
+  repeating-linear-gradient(to bottom,transparent 0 39px,var(--rule) 39px 40px),var(--paper);position:relative;overflow:hidden}
+.fc::before{content:"";position:absolute;left:28px;top:0;bottom:0;width:2px;background:var(--red);opacity:.75}
+.fc .tag{position:absolute;right:12px;top:8px;font-size:13px;color:var(--ink2);background:var(--paper);padding:0 6px}
+.fc .face{min-height:200px;display:flex;align-items:center;justify-content:center;padding:32px 20px 12px 40px}
+.xl{font-size:64px;line-height:1.7;text-align:center}
+.ans{padding:12px 20px 18px 44px;background:var(--paper);border-top:1px solid var(--rule)}
+.ans .tr2{font-size:22px;font-weight:700;font-family:var(--serif)}
+.ans .en2{font-size:18px;color:var(--ink2);margin-bottom:8px}
+
+.detail{margin:6px 20px 16px;padding:14px;border:1px solid var(--rule);border-radius:6px;background:var(--paper2)}
+.detail .big{font-size:84px;line-height:1.5;text-align:center;display:block}
+.detail h2{font-size:22px;text-align:center}
+.detail .snd{text-align:center;color:var(--ink2);margin:2px 0 10px}
+.forms{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px 0}
+.forms div{text-align:center;min-width:64px}
+.forms .ar{font-size:36px;line-height:1.5;display:block;border:1px solid var(--rule);border-radius:4px;background:var(--paper)}
+.forms small{font-size:12px;color:var(--ink2)}
+.ex{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--rule)}
+.ex .ar{font-size:30px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 20px 16px}
+.lbtn{aspect-ratio:1;border:1px solid var(--rule);border-radius:6px;font-family:var(--ar);font-size:34px;background:var(--paper)}
+.lbtn.sel{border:2px solid var(--ink);background:var(--paper2)}
+.marks .wr .ar{font-size:30px}
+
+.q{margin:6px 20px}
+.qword{border:1px solid var(--rule);border-radius:6px;padding:12px;text-align:center;background:var(--paper2)}
+.qword .ar{font-size:72px;line-height:1.6;display:block}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{padding:16px;border:2px solid var(--ink2);border-radius:8px;font-size:20px;font-weight:600;text-align:center;background:var(--paper)}
+.opt.ok{background:var(--teal);border-color:var(--teal);color:var(--paper)}
+.opt.bad{border-color:var(--red);color:var(--red);text-decoration:line-through}
+.score{font-family:var(--serif);font-size:56px;text-align:center;margin:10px 0}
+
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--rule);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav button{padding:16px 2px 14px;font-size:13px;font-weight:600;color:var(--ink2);border-top:3px solid transparent;margin-top:-1px}
+nav button.on{color:var(--ink);border-top-color:var(--red)}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:6px;max-width:88%;font-size:15px;opacity:0;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+.reset{display:block;margin:22px auto 8px;color:var(--ink2);text-decoration:underline;font-size:14px}
+
+.wr .ar{max-width:58%}
+.seg{display:inline-grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:4px 20px 12px}
+.seg button{padding:8px 18px;font-weight:600}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.glist{border-top:1px solid var(--rule)}
+.gl{border-bottom:1px solid var(--rule)}
+.grow{display:flex;justify-content:space-between;align-items:center;width:100%;padding:15px 20px;text-align:left;gap:12px}
+.grow .t{font-family:var(--serif);font-weight:700;font-size:18px;line-height:1.3}
+.grow .d{color:var(--ink2);font-size:14px;white-space:nowrap}
+.grow[disabled]{opacity:.5;cursor:default}
+.gbody{padding:0 20px 18px}
+.gp{margin:8px 0}
+.gh{font-size:17px;margin:16px 0 2px}
+.mist{margin:16px 0 0;padding:10px 14px;border-left:3px solid var(--red);background:var(--paper2);font-size:15px}
+.lnk{text-decoration:underline;font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+
+/* ---------- DATA ---------- */
+// word = [arabic, transliteration, english]
+const DAYS = [
+{theme:"Greetings and your first letters",letters:["ا","ب","ت","ث"],
+ words:[["مَرْحَبًا","marḥaban","hello"],["شُكْرًا","shukran","thank you"],["عَفْوًا","ʿafwan","you're welcome"],["نَعَمْ","naʿam","yes"],["لَا","lā","no"],["بَابٌ","bāb","door"]],
+ quran:[["حَمْدٌ","ḥamd","praise"],["رَبٌّ","rabb","Lord"]],
+ qf:"Al-Fatiha verses 1 to 2: listen three times, then recite them.",
+ pat:[["مَرْحَبًا!","marḥaban!","Hello!"],["شُكْرًا، عَفْوًا","shukran, ʿafwan","Thank you, you're welcome"]],
+ tip:"Arabic is written from right to left. Letters change shape depending on where they sit in a word.",
+ kids:"Say the four letters together as a family. Find the letter ب in the word باب."},
+{theme:"Asking how someone is",letters:["ج","ح","خ"],
+ words:[["السَّلَامُ عَلَيْكُمْ","as-salāmu ʿalaykum","peace be upon you"],["كَيْفَ حَالُكَ؟","kayfa ḥāluka?","how are you? (to a man)"],["بِخَيْرٍ","bi-khayr","well, fine"],["صَبَاحٌ","ṣabāḥ","morning"],["مَسَاءٌ","masāʾ","evening"]],
+ quran:[["عَالَمِينَ","ʿālamīn","worlds"]],
+ qf:"Al-Fatiha verses 2 to 3: say what each verse means in your own words.",
+ pat:[["السَّلَامُ عَلَيْكُمْ. كَيْفَ حَالُكَ؟","as-salāmu ʿalaykum. kayfa ḥāluka?","Peace be upon you. How are you?"],["بِخَيْرٍ، شُكْرًا","bi-khayr, shukran","Fine, thank you"],["صَبَاحُ الْخَيْرِ","ṣabāḥ al-khayr","Good morning"]],
+ tip:"To a woman, say kayfa ḥāluki.",
+ kids:"Before breakfast, greet every family member with a full greeting."},
+{theme:"I, you, he, she",letters:["د","ذ","ر","ز"],
+ words:[["أَنَا","anā","I"],["أَنْتَ","anta","you (to a man)"],["أَنْتِ","anti","you (to a woman)"],["هُوَ","huwa","he"],["هِيَ","hiya","she"]],
+ quran:[["مَالِكٌ","mālik","owner, master"]],
+ qf:"Al-Fatiha verses 3 to 4.",
+ pat:[["أَنَا بِخَيْرٍ","anā bi-khayr","I am well"],["أَنْتَ بِخَيْرٍ","anta bi-khayr","You are well"],["هِيَ بِخَيْرٍ","hiya bi-khayr","She is well"]],
+ tip:"Arabic has no word for am, is or are in the present. Anā bi-khayr literally means 'I well'.",
+ kids:"Point at people and say anā, anta, anti, huwa, hiya as fast as you can."},
+{theme:"This is...",letters:["س","ش","ص","ض"],
+ words:[["نَحْنُ","naḥnu","we"],["هُمْ","hum","they"],["هَذَا","hādhā","this (masculine)"],["هَذِهِ","hādhihi","this (feminine)"],["كِتَابٌ","kitāb","book"]],
+ quran:[["يَوْمٌ","yawm","day"],["دِينٌ","dīn","judgment, religion"]],
+ qf:"Al-Fatiha verse 4: the Day of Judgment.",
+ pat:[["هَذَا كِتَابٌ","hādhā kitāb","This is a book"],["هَذَا بَابٌ","hādhā bāb","This is a door"],["نَحْنُ بِخَيْرٍ","naḥnu bi-khayr","We are well"]],
+ tip:"Use hādhā for masculine things and hādhihi for feminine ones.",
+ kids:"Pick five things in the room. Say hādhā or hādhihi for each, and point."},
+{theme:"Family",letters:["ط","ظ","ع","غ"],
+ words:[["أَبٌ","ab","father"],["أُمٌّ","umm","mother"],["وَلَدٌ","walad","boy"],["بِنْتٌ","bint","girl"],["أَخٌ","akh","brother"],["أُخْتٌ","ukht","sister"]],
+ quran:[["نَعْبُدُ","naʿbudu","we worship"],["نَسْتَعِينُ","nastaʿīnu","we ask for help"]],
+ qf:"Al-Fatiha verse 5.",
+ pat:[["هَذَا أَبِي","hādhā abī","This is my father"],["هَذِهِ أُمِّي","hādhihi ummī","This is my mother"],["هَذِهِ أُخْتِي","hādhihi ukhtī","This is my sister"]],
+ tip:"Adding -ī to a noun means 'my': ab becomes abī.",
+ kids:"Draw the family tree and label every person in Arabic."},
+{theme:"Home and school",letters:["ف","ق","ك","ل"],
+ words:[["بَيْتٌ","bayt","house"],["مَدْرَسَةٌ","madrasa","school"],["غُرْفَةٌ","ghurfa","room"],["طَاوِلَةٌ","ṭāwila","table"],["كُرْسِيٌّ","kursī","chair"],["نَافِذَةٌ","nāfidha","window"]],
+ quran:[["اِهْدِنَا","ihdinā","guide us"],["صِرَاطٌ","ṣirāṭ","path"]],
+ qf:"Al-Fatiha verses 6 to 7.",
+ pat:[["هَذَا بَيْتِي","hādhā baytī","This is my house"],["هَذِهِ غُرْفَةٌ","hādhihi ghurfa","This is a room"],["هَذِهِ مَدْرَسَةٌ","hādhihi madrasa","This is a school"]],
+ tip:"Many feminine words end in -a (ة): ghurfa, madrasa, ṭāwila, nāfidha.",
+ kids:"Put sticky notes with the Arabic names on six things at home."},
+{theme:"Food and drink",letters:["م","ن","ه","و","ي"],
+ words:[["مَاءٌ","māʾ","water"],["خُبْزٌ","khubz","bread"],["حَلِيبٌ","ḥalīb","milk"],["تُفَّاحٌ","tuffāḥ","apple"],["أَرُزٌّ","aruzz","rice"],["سَمَكٌ","samak","fish"]],
+ quran:[["مُسْتَقِيمٌ","mustaqīm","straight"]],
+ qf:"Recite all of Al-Fatiha and say the meaning of every verse.",
+ pat:[["هَذَا خُبْزٌ","hādhā khubz","This is bread"],["هَذَا حَلِيبٌ","hādhā ḥalīb","This is milk"],["أُرِيدُ مَاءً","urīdu māʾan","I want water"]],
+ tip:"Learn urīdu māʾan as one chunk for now. On day 15 you will take it apart.",
+ kids:"At snack time, everyone must ask in Arabic: urīdu māʾan."},
+{theme:"Questions",study:"Review all 28 letters in the Letters tab. Then learn the three short vowels: fatḥa (a), ḍamma (u) and kasra (i). They are in the table at the bottom of that tab.",
+ words:[["مَا","mā","what"],["مَنْ","man","who"],["أَيْنَ","ayna","where"],["كَيْفَ","kayfa","how"],["كَمْ","kam","how many"],["لِمَاذَا","li-mādhā","why"]],
+ quran:[["قُلْ","qul","say"],["أَحَدٌ","aḥad","one"]],
+ qf:"Al-Ikhlas verses 1 to 2: listen three times, then recite.",
+ pat:[["مَا هَذَا؟","mā hādhā?","What is this?"],["مَنْ هَذَا؟","man hādhā?","Who is this?"],["أَيْنَ الْبَابُ؟","ayna l-bāb?","Where is the door?"]],
+ tip:"Question words go at the start of the sentence.",
+ kids:"Hide an object in a bag. Ask mā hādhā? until someone guesses."},
+{theme:"My name and my things",study:"Learn sukūn (no vowel), shadda (a doubled letter) and tanwīn (the endings -an, -un, -in). They are in the table at the bottom of the Letters tab.",
+ words:[["اِسْمٌ","ism","name"],["عِنْدِي","ʿindī","I have"],["عِنْدَكَ","ʿindaka","you have (to a man)"],["كِتَابِي","kitābī","my book"],["بَيْتُهُ","baytuhu","his house"]],
+ quran:[["كُفُوًا","kufuwan","equal"]],
+ qf:"Al-Ikhlas verses 3 to 4. Recite the whole surah.",
+ pat:[["مَا اسْمُكَ؟","mā ismuka?","What is your name?"],["اِسْمِي ...","ismī ...","My name is ..."],["عِنْدِي كِتَابٌ","ʿindī kitāb","I have a book"]],
+ tip:"Endings: -ī is my, -ka is your (to a man), -hu is his. Arabic says 'I have' as 'at me': ʿindī.",
+ kids:"Each child introduces themselves and shows one thing: ismī ..., ʿindī ..."},
+{theme:"Numbers 1 to 5",study:"Learn the long vowels ā, ī, ū (written with ا ي و). Then read ten words from your flashcards using only the Arabic.",
+ words:[["وَاحِدٌ","wāḥid","one"],["اثْنَانِ","ithnān","two"],["ثَلَاثَةٌ","thalātha","three"],["أَرْبَعَةٌ","arbaʿa","four"],["خَمْسَةٌ","khamsa","five"]],
+ quran:[["أَعُوذُ","aʿūdhu","I seek refuge"]],
+ qf:"An-Nas verse 1: listen three times, then recite.",
+ pat:[["وَاحِدٌ، اثْنَانِ، ثَلَاثَةٌ","wāḥid, ithnān, thalātha","One, two, three"],["أَرْبَعَةٌ، خَمْسَةٌ","arbaʿa, khamsa","Four, five"],["عِنْدِي أَخٌ وَاحِدٌ","ʿindī akh wāḥid","I have one brother"]],
+ tip:"",
+ kids:"Count steps, stairs and toys from 1 to 5 out loud."},
+{theme:"Numbers 6 to 10",
+ words:[["سِتَّةٌ","sitta","six"],["سَبْعَةٌ","sabʿa","seven"],["ثَمَانِيَةٌ","thamāniya","eight"],["تِسْعَةٌ","tisʿa","nine"],["عَشَرَةٌ","ʿashara","ten"]],
+ quran:[["نَاسٌ","nās","people"]],
+ qf:"An-Nas verses 1 to 2.",
+ pat:[["سِتَّةٌ، سَبْعَةٌ، ثَمَانِيَةٌ","sitta, sabʿa, thamāniya","Six, seven, eight"],["تِسْعَةٌ، عَشَرَةٌ","tisʿa, ʿashara","Nine, ten"],["عِنْدِي أُخْتٌ وَاحِدَةٌ","ʿindī ukht wāḥida","I have one sister"]],
+ tip:"Number words change with gender and with the thing counted. For now, learn them as plain counting.",
+ kids:"Count to ten in Arabic during hide and seek."},
+{theme:"Colours",
+ words:[["أَحْمَرُ","aḥmar","red"],["أَزْرَقُ","azraq","blue"],["أَخْضَرُ","akhḍar","green"],["أَبْيَضُ","abyaḍ","white"],["أَسْوَدُ","aswad","black"],["أَصْفَرُ","aṣfar","yellow"]],
+ quran:[["مَلِكٌ","malik","king"]],
+ qf:"An-Nas verse 2.",
+ pat:[["بَابٌ أَزْرَقُ","bāb azraq","A blue door"],["كِتَابٌ أَحْمَرُ","kitāb aḥmar","A red book"],["خُبْزٌ أَبْيَضُ","khubz abyaḍ","White bread"]],
+ tip:"The adjective comes after the noun. These colour forms are for masculine nouns.",
+ kids:"Colour hunt: find something red, blue, green, white, black and yellow, and say its colour."},
+{theme:"Describing things",
+ words:[["كَبِيرٌ","kabīr","big"],["صَغِيرٌ","ṣaghīr","small"],["جَمِيلٌ","jamīl","beautiful"],["جَدِيدٌ","jadīd","new"],["قَدِيمٌ","qadīm","old"],["طَوِيلٌ","ṭawīl","tall, long"]],
+ quran:[["إِلَهٌ","ilāh","god"]],
+ qf:"An-Nas verse 3.",
+ pat:[["بَيْتٌ كَبِيرٌ","bayt kabīr","A big house"],["الْبَيْتُ كَبِيرٌ","al-baytu kabīr","The house is big"],["الْكِتَابُ جَدِيدٌ","al-kitābu jadīd","The book is new"]],
+ tip:"al- means 'the'. 'Bayt kabīr' is a phrase (a big house). 'Al-baytu kabīr' is a full sentence (the house is big).",
+ kids:"Sort toys into a big pile and a small pile. Say the Arabic word for each."},
+{theme:"Review week, and four more adjectives",
+ words:[["جَيِّدٌ","jayyid","good"],["سَيِّئٌ","sayyiʾ","bad"],["سَهْلٌ","sahl","easy"],["صَعْبٌ","ṣaʿb","difficult"]],
+ quran:[["شَرٌّ","sharr","evil"]],
+ qf:"An-Nas verse 4. Then recite Al-Ikhlas and An-Nas as far as you know them.",
+ pat:[["هَذَا بَيْتٌ كَبِيرٌ وَجَدِيدٌ","hādhā bayt kabīr wa-jadīd","This is a big and new house"],["هَذَا سَهْلٌ","hādhā sahl","This is easy"],["الْكِتَابُ جَيِّدٌ","al-kitābu jayyid","The book is good"]],
+ tip:"Two weeks done. Open the Cards tab and clear everything that is due before you move on.",
+ kids:"Family quiz night: open the Quiz tab and see who scores highest."},
+{theme:"Verbs: I want, I like, I go",
+ words:[["أُرِيدُ","urīdu","I want"],["أُحِبُّ","uḥibbu","I like, I love"],["أَذْهَبُ","adhhabu","I go"],["آكُلُ","ākulu","I eat"],["أَشْرَبُ","ashrabu","I drink"]],
+ quran:[["عَصْرٌ","ʿaṣr","time, afternoon"]],
+ qf:"Al-ʿAsr verse 1: listen three times, then recite.",
+ pat:[["أُرِيدُ مَاءً","urīdu māʾan","I want water"],["أُحِبُّ الْخُبْزَ","uḥibbu l-khubz","I like bread"],["آكُلُ التُّفَّاحَ","ākulu t-tuffāḥ","I eat the apple"]],
+ tip:"A present verb that starts with a- (أ) means 'I'. Now you can take apart urīdu: it is 'I want'.",
+ kids:"Mime eating, drinking and going. The others say the verb, starting with a- for 'I'."},
+{theme:"Verbs: read, write, listen",
+ words:[["أَقْرَأُ","aqraʾu","I read"],["أَكْتُبُ","aktubu","I write"],["أَسْمَعُ","asmaʿu","I hear, I listen"],["أَنَامُ","anāmu","I sleep"],["أَعْرِفُ","aʿrifu","I know"]],
+ quran:[["إِنْسَانٌ","insān","human being"]],
+ qf:"Al-ʿAsr verse 2.",
+ pat:[["أَقْرَأُ كِتَابًا","aqraʾu kitāban","I read a book"],["أَكْتُبُ اسْمِي","aktubu ismī","I write my name"],["أَعْرِفُ اسْمَكَ","aʿrifu ismaka","I know your name"]],
+ tip:"A thing that receives the action often takes -an: kitāb becomes kitāban.",
+ kids:"The kids read the word cards aloud and a parent acts out each verb."},
+{theme:"In, from, to, on, with",
+ words:[["فِي","fī","in"],["مِنْ","min","from"],["إِلَى","ilā","to"],["عَلَى","ʿalā","on"],["مَعَ","maʿa","with"]],
+ quran:[["خُسْرٌ","khusr","loss"]],
+ qf:"Al-ʿAsr verse 2: say what 'loss' means here.",
+ pat:[["أَذْهَبُ إِلَى الْمَدْرَسَةِ","adhhabu ilā l-madrasa","I go to school"],["الْكِتَابُ عَلَى الطَّاوِلَةِ","al-kitābu ʿalā ṭ-ṭāwila","The book is on the table"],["أَنَا فِي الْبَيْتِ","anā fī l-bayt","I am in the house"]],
+ tip:"After a preposition the noun ends in -i: al-bayt becomes fī l-bayti.",
+ kids:"Treasure hunt with clues: the key is fī the room, the coin is ʿalā the table."},
+{theme:"He and she verbs",
+ words:[["يَكْتُبُ","yaktubu","he writes"],["تَكْتُبُ","taktubu","she writes"],["يَذْهَبُ","yadhhabu","he goes"],["يَأْكُلُ","yaʾkulu","he eats"],["يَلْعَبُ","yalʿabu","he plays"]],
+ quran:[["آمَنُوا","āmanū","they believed"]],
+ qf:"Al-ʿAsr verse 3, first part.",
+ pat:[["هُوَ يَأْكُلُ الْخُبْزَ","huwa yaʾkulu l-khubz","He eats the bread"],["هِيَ تَكْتُبُ","hiya taktubu","She writes"],["الْوَلَدُ يَلْعَبُ","al-waladu yalʿabu","The boy plays"]],
+ tip:"a- is I, ya- is he, ta- is she. Ta- also means 'you (to a man)'.",
+ kids:"Tell a story about a boy and a girl. Use ya- for the boy and ta- for the girl."},
+{theme:"Time",
+ words:[["لَيْلٌ","layl","night"],["الْيَوْمَ","al-yawma","today"],["غَدًا","ghadan","tomorrow"],["أَمْسِ","amsi","yesterday"],["أُسْبُوعٌ","usbūʿ","week"]],
+ quran:[["عَمِلُوا","ʿamilū","they did"],["صَالِحَاتٌ","ṣāliḥāt","good deeds"]],
+ qf:"Al-ʿAsr verse 3, middle part.",
+ pat:[["الْيَوْمَ أَذْهَبُ إِلَى الْمَدْرَسَةِ","al-yawma adhhabu ilā l-madrasa","Today I go to school"],["غَدًا أَكْتُبُ","ghadan aktubu","Tomorrow I will write"],["اللَّيْلُ جَمِيلٌ","al-laylu jamīl","The night is beautiful"]],
+ tip:"The present tense also covers the near future: ghadan aktubu means 'tomorrow I will write'.",
+ kids:"Make a family calendar with yesterday, today and tomorrow in Arabic."},
+{theme:"Places in town",
+ words:[["مَسْجِدٌ","masjid","mosque"],["سُوقٌ","sūq","market"],["مَدِينَةٌ","madīna","city"],["قَرْيَةٌ","qarya","village"],["طَرِيقٌ","ṭarīq","road"]],
+ quran:[["حَقٌّ","ḥaqq","truth"]],
+ qf:"Al-ʿAsr verse 3, last part.",
+ pat:[["أَذْهَبُ إِلَى الْمَسْجِدِ","adhhabu ilā l-masjid","I go to the mosque"],["أَيْنَ السُّوقُ؟","ayna s-sūq?","Where is the market?"],["هَذِهِ قَرْيَةٌ جَمِيلَةٌ","hādhihi qarya jamīla","This is a beautiful village"]],
+ tip:"Feminine nouns take feminine adjectives: qarya jamīla (add -a).",
+ kids:"Draw a map of your neighbourhood or hometown and label it in Arabic."},
+{theme:"Joining sentences",
+ words:[["وَ","wa","and"],["لَكِنْ","lākin","but"],["أَوْ","aw","or"],["لِأَنَّ","li-anna","because"]],
+ quran:[["صَبْرٌ","ṣabr","patience"]],
+ qf:"Recite all of Al-ʿAsr and explain it in one sentence.",
+ pat:[["أُحِبُّ الْحَلِيبَ وَالْمَاءَ","uḥibbu l-ḥalība wa-l-māʾ","I like milk and water"],["أُرِيدُ الْحَلِيبَ أَوِ الْمَاءَ","urīdu l-ḥalība awi l-māʾ","I want milk or water"],["أُحِبُّ الْبَيْتَ لِأَنَّهُ كَبِيرٌ","uḥibbu l-bayta li-annahu kabīr","I like the house because it is big"]],
+ tip:"wa is written attached to the next word: wa-l-māʾ.",
+ kids:"Make long sentences with wa, aw and li-anna. The longest correct one wins."},
+{theme:"Past tense",
+ words:[["ذَهَبَ","dhahaba","he went"],["كَتَبَ","kataba","he wrote"],["أَكَلَ","akala","he ate"],["شَرِبَ","shariba","he drank"],["قَرَأَ","qaraʾa","he read"]],
+ quran:[["إِنَّ","inna","indeed"]],
+ qf:"Find inna in Al-ʿAsr verse 2.",
+ pat:[["ذَهَبَ الْوَلَدُ إِلَى الْمَدْرَسَةِ","dhahaba l-waladu ilā l-madrasa","The boy went to school"],["أَكَلَ أَبِي الْخُبْزَ","akala abī l-khubz","My father ate the bread"],["قَرَأَ أَخِي كِتَابًا","qaraʾa akhī kitāban","My brother read a book"]],
+ tip:"The simplest past verb means 'he did it'. In Arabic the verb often comes first in the sentence.",
+ kids:"Retell what each person did today, using past verbs."},
+{theme:"More past verbs",
+ words:[["فَتَحَ","fataḥa","he opened"],["جَلَسَ","jalasa","he sat"],["دَخَلَ","dakhala","he entered"],["خَرَجَ","kharaja","he left"],["رَجَعَ","rajaʿa","he returned"]],
+ quran:[["كُلٌّ","kull","every, all"]],
+ qf:"Revise Al-Fatiha, Al-Ikhlas and An-Nas from memory.",
+ pat:[["فَتَحَ أَبِي الْبَابَ","fataḥa abī l-bāb","My father opened the door"],["دَخَلَ الْوَلَدُ الْغُرْفَةَ","dakhala l-waladu l-ghurfa","The boy entered the room"],["رَجَعَ أَخِي إِلَى الْبَيْتِ","rajaʿa akhī ilā l-bayt","My brother returned home"]],
+ tip:"",
+ kids:"Act out each past verb as a parent calls it out."},
+{theme:"Body and people",
+ words:[["يَدٌ","yad","hand"],["عَيْنٌ","ʿayn","eye"],["رَأْسٌ","raʾs","head"],["قَلْبٌ","qalb","heart"],["صَدِيقٌ","ṣadīq","friend"],["مُعَلِّمٌ","muʿallim","teacher"]],
+ quran:[["الَّذِي","alladhī","who, which"]],
+ qf:"Find alladhī in An-Nas verse 5.",
+ pat:[["صَدِيقِي مُعَلِّمٌ","ṣadīqī muʿallim","My friend is a teacher"],["هَذِهِ يَدِي","hādhihi yadī","This is my hand"],["أُحِبُّ مُعَلِّمِي","uḥibbu muʿallimī","I love my teacher"]],
+ tip:"",
+ kids:"Head, hand, eye, heart: touch each body part as you hear its name."},
+{theme:"Nature",
+ words:[["شَمْسٌ","shams","sun"],["قَمَرٌ","qamar","moon"],["سَمَاءٌ","samāʾ","sky"],["أَرْضٌ","arḍ","earth"],["بَحْرٌ","baḥr","sea"],["شَجَرَةٌ","shajara","tree"]],
+ quran:[["ذَلِكَ","dhālika","that"]],
+ qf:"Listen to the start of Al-Baqarah (verse 2) and spot dhālika.",
+ pat:[["الشَّمْسُ جَمِيلَةٌ","ash-shamsu jamīla","The sun is beautiful"],["الْقَمَرُ فِي السَّمَاءِ","al-qamaru fī s-samāʾ","The moon is in the sky"],["الشَّجَرَةُ طَوِيلَةٌ","ash-shajaratu ṭawīla","The tree is tall"]],
+ tip:"Before letters like sh, s, t, d, r, the l of al- is not pronounced: ash-shams, not al-shams.",
+ kids:"Nature walk: name everything you see in Arabic."},
+{theme:"Polite phrases",
+ words:[["مِنْ فَضْلِكَ","min faḍlika","please"],["آسِفٌ","āsif","sorry"],["أَفْهَمُ","afhamu","I understand"],["لَا أَفْهَمُ","lā afhamu","I don't understand"],["بِكَمْ","bikam","how much (price)"]],
+ quran:[["لَهُمْ","lahum","for them"]],
+ qf:"Revise Al-ʿAsr and name every word you now recognise.",
+ pat:[["مِنْ فَضْلِكَ، أُرِيدُ مَاءً","min faḍlika, urīdu māʾan","Please, I want water"],["لَا أَفْهَمُ","lā afhamu","I don't understand"],["بِكَمْ هَذَا؟","bikam hādhā?","How much is this?"]],
+ tip:"lā before a present verb makes it negative.",
+ kids:"Shop role-play: one is the seller, one the buyer. Ask bikam hādhā?"},
+{theme:"Is not, did not, will not",
+ words:[["لَيْسَ","laysa","is not"],["لَمْ","lam","did not"],["لَنْ","lan","will not"],["هَلْ","hal","(question marker, yes or no)"],["جِدًّا","jiddan","very"]],
+ quran:[["قَالَ","qāla","he said"]],
+ qf:"Al-Ikhlas starts with qul ('say'). Qāla is the past form: 'he said'.",
+ pat:[["لَيْسَ الْبَيْتُ صَغِيرًا","laysa l-baytu ṣaghīran","The house is not small"],["لَمْ أَذْهَبْ إِلَى الْمَدْرَسَةِ","lam adhhab ilā l-madrasa","I did not go to school"],["هَلْ أَنْتَ مِنْ غِينِيَا؟","hal anta min Ghīniyā?","Are you from Guinea?"]],
+ tip:"hal turns a statement into a yes or no question. lam plus a present verb means 'did not'.",
+ kids:"True or false: say a sentence with laysa and the others decide."},
+{theme:"Review week, and everyday nouns",
+ words:[["مَالٌ","māl","money"],["عَمَلٌ","ʿamal","work"],["وَقْتٌ","waqt","time"],["سُؤَالٌ","suʾāl","question"],["جَوَابٌ","jawāb","answer"]],
+ quran:[["كَانَ","kāna","was"]],
+ qf:"Revise all four surahs and list every word you recognise.",
+ pat:[["عِنْدِي سُؤَالٌ","ʿindī suʾāl","I have a question"],["مَا الْجَوَابُ؟","mā l-jawāb?","What is the answer?"],["لَيْسَ عِنْدِي وَقْتٌ","laysa ʿindī waqt","I don't have time"]],
+ tip:"Clear every due flashcard today.",
+ kids:"Each child asks three questions and everyone answers in Arabic."},
+{theme:"Talking about language",
+ words:[["كَلِمَةٌ","kalima","word"],["جُمْلَةٌ","jumla","sentence"],["لُغَةٌ","lugha","language"],["عَرَبِيٌّ","ʿarabī","Arabic"],["تَعَلَّمَ","taʿallama","he learned"]],
+ quran:[],
+ qf:"Recite Al-Fatiha, Al-Ikhlas, An-Nas and Al-ʿAsr in a row.",
+ pat:[["أَتَعَلَّمُ اللُّغَةَ الْعَرَبِيَّةَ","ataʿallamu l-lugha l-ʿarabiyya","I am learning the Arabic language"],["اِسْمِي ... وَأَنَا مِنْ ...","ismī ... wa-anā min ...","My name is ... and I am from ..."],["أُحِبُّ الْعَرَبِيَّةَ","uḥibbu l-ʿarabiyya","I love Arabic"]],
+ tip:"The present of taʿallama is ataʿallamu: 'I learn'.",
+ kids:"Each child writes five sentences about themselves in Arabic."},
+{theme:"Your first conversation",study:"Clear all due flashcards. Then record yourself speaking for two minutes: greet, give your name, talk about your family and home, say what you like and what you want.",
+ words:[],
+ quran:[],
+ qf:"Recite all four surahs and explain each in one sentence.",
+ pat:[["مَرْحَبًا! اِسْمِي ... وَأَنَا مِنْ ...","marḥaban! ismī ... wa-anā min ...","Hello! My name is ... and I am from ..."],["أُحِبُّ عَائِلَتِي وَبَيْتِي","uḥibbu ʿāʾilatī wa-baytī","I love my family and my home"],["أَتَعَلَّمُ الْعَرَبِيَّةَ كُلَّ يَوْمٍ","ataʿallamu l-ʿarabiyya kulla yawm","I learn Arabic every day"]],
+ tip:"You finished. Next: a tutor for speaking practice, Madinah Arabic Book 1, and later a spoken dialect.",
+ kids:"Family show: everyone performs a short introduction in Arabic."}
+];
+
+// letter = [char, name, sound, example arabic, example translit, example english]
+const LETTERS = [
+["ا","alif","a long 'aa' sound; also carries the glottal stop","أَسَدٌ","asad","lion"],
+["ب","bāʾ","b","بَابٌ","bāb","door"],
+["ت","tāʾ","t","تُفَّاحٌ","tuffāḥ","apple"],
+["ث","thāʾ","th as in 'think'","ثَعْلَبٌ","thaʿlab","fox"],
+["ج","jīm","j as in 'jam'","جَمَلٌ","jamal","camel"],
+["ح","ḥāʾ","a breathy h from the throat, like fogging a mirror","حَلِيبٌ","ḥalīb","milk"],
+["خ","khāʾ","kh as in Scottish 'loch'","خُبْزٌ","khubz","bread"],
+["د","dāl","d","دَجَاجٌ","dajāj","chicken"],
+["ذ","dhāl","th as in 'this'","ذَهَبٌ","dhahab","gold"],
+["ر","rāʾ","a rolled r","رَجُلٌ","rajul","man"],
+["ز","zayn","z","زَهْرَةٌ","zahra","flower"],
+["س","sīn","s","سَمَكٌ","samak","fish"],
+["ش","shīn","sh","شَمْسٌ","shams","sun"],
+["ص","ṣād","a heavy, deep s","صَبَاحٌ","ṣabāḥ","morning"],
+["ض","ḍād","a heavy, deep d","ضَوْءٌ","ḍawʾ","light"],
+["ط","ṭāʾ","a heavy, deep t","طِفْلٌ","ṭifl","child"],
+["ظ","ẓāʾ","a heavy th as in 'this'","ظِلٌّ","ẓill","shadow"],
+["ع","ʿayn","a squeezed sound from deep in the throat","عَيْنٌ","ʿayn","eye"],
+["غ","ghayn","a gargled gh, like the French r","غُرْفَةٌ","ghurfa","room"],
+["ف","fāʾ","f","فِيلٌ","fīl","elephant"],
+["ق","qāf","a deep k from the back of the throat","قَمَرٌ","qamar","moon"],
+["ك","kāf","k","كِتَابٌ","kitāb","book"],
+["ل","lām","l","لَيْلٌ","layl","night"],
+["م","mīm","m","مَاءٌ","māʾ","water"],
+["ن","nūn","n","نَجْمٌ","najm","star"],
+["ه","hāʾ","a light h","هِلَالٌ","hilāl","crescent"],
+["و","wāw","w, or a long 'oo'","وَلَدٌ","walad","boy"],
+["ي","yāʾ","y, or a long 'ee'","يَدٌ","yad","hand"]
+];
+const NONJOIN = ["ا","د","ذ","ر","ز","و"];
+const MARKS = [
+["بَ","ba","fatḥa: short a"],["بُ","bu","ḍamma: short u"],["بِ","bi","kasra: short i"],
+["بْ","b","sukūn: no vowel"],["بَّ","bba","shadda: doubles the letter"],
+["بً","ban","tanwīn: adds -an"],["بٌ","bun","tanwīn: adds -un"],["بٍ","bin","tanwīn: adds -in"],
+["بَا","bā","long ā"],["بِي","bī","long ī"],["بُو","bū","long ū"]
+];
+
+/* ---------- GRAMMAR (adults) ---------- */
+// ex row = [arabic, transliteration, english, french]
+const GUI = {
+  en:{title:"Grammar",sub:"Short rules for adults, with examples from words you already know.",ex:"Examples",mistake:"Common mistake",opens:"Opens on day",day:"Day"},
+  fr:{title:"Grammaire",sub:"Des règles courtes pour les adultes, avec des exemples tirés des mots que tu connais déjà.",ex:"Exemples",mistake:"Erreur fréquente",opens:"Au jour",day:"Jour"}
+};
+const GRAMMAR = [
+{day:4,title:{en:"No 'to be' in the present",fr:"Pas de verbe « être » au présent"},
+ rule:{en:["In the present tense, Arabic leaves out <b>am, is, are</b>. You simply put the two parts side by side: <i>I</i> + <i>well</i>, <i>this</i> + <i>a book</i>.","This is called a <b>nominal sentence</b> (a sentence without a verb). It is the most common sentence type in the first weeks, and you already know several."],
+       fr:["Au présent, l'arabe <b>n'emploie pas</b> « suis, es, est, sommes, sont ». On place simplement les deux parties côte à côte : <i>moi</i> + <i>bien</i>, <i>ceci</i> + <i>un livre</i>.","C'est ce qu'on appelle une <b>phrase nominale</b> (une phrase sans verbe). C'est le type de phrase le plus courant au début, et tu en connais déjà plusieurs."]},
+ ex:[["أَنَا بِخَيْرٍ","anā bi-khayr","I am well","Je vais bien"],["أَنْتَ بِخَيْرٍ","anta bi-khayr","You are well","Tu vas bien"],["نَحْنُ بِخَيْرٍ","naḥnu bi-khayr","We are well","Nous allons bien"],["هَذَا كِتَابٌ","hādhā kitāb","This is a book","Ceci est un livre"]],
+ mistake:{en:"Do not add a word for 'is'. Just say the two parts. (The past and the future do use a verb, kāna, 'was', which you will meet later.)",fr:"N'ajoute pas de mot pour « est ». Dis simplement les deux parties. (Le passé et le futur utilisent un verbe, kāna, « était », que tu verras plus tard.)"}},
+
+{day:6,title:{en:"Masculine and feminine",fr:"Masculin et féminin"},
+ rule:{en:["Every Arabic noun is masculine or feminine, including things: a door is masculine, a school is feminine.","Most feminine nouns end in <b>ـة</b> (pronounced <b>-a</b>): madrasa, ghurfa, ṭāwila, nāfidha. Words for females are feminine too: umm, bint, ukht.","The gender decides which word you use for <b>this</b> (hādhā for masculine, hādhihi for feminine) and, later, the ending of adjectives and verbs."],
+       fr:["Tout nom arabe est masculin ou féminin, y compris les objets : une porte est masculine, une école est féminine.","La plupart des noms féminins se terminent par <b>ـة</b> (prononcé <b>-a</b>) : madrasa, ghurfa, ṭāwila, nāfidha. Les mots qui désignent des femmes sont aussi féminins : umm, bint, ukht.","Le genre détermine le mot pour « ceci » (hādhā au masculin, hādhihi au féminin) et, plus tard, la terminaison des adjectifs et des verbes."]},
+ ex:[["هَذَا بَابٌ","hādhā bāb","This is a door (masculine)","Ceci est une porte (masculin)"],["هَذِهِ غُرْفَةٌ","hādhihi ghurfa","This is a room (feminine)","Ceci est une chambre (féminin)"],["هَذَا أَخٌ","hādhā akh","This is a brother","Voici un frère"],["هَذِهِ أُخْتٌ","hādhihi ukht","This is a sister","Voici une sœur"]],
+ mistake:{en:"Do not guess the gender from the English word. Learn each noun with hādhā or hādhihi. A few feminine words do not end in -a (you will meet yad, ʿayn and shams later): learn them as exceptions.",fr:"Ne devine pas le genre d'après le mot français : bāb (porte) est masculin en arabe. Apprends chaque nom avec hādhā ou hādhihi. Quelques mots féminins ne se terminent pas par -a (tu rencontreras yad, ʿayn et shams plus tard) : apprends-les comme des exceptions."}},
+
+{day:7,title:{en:"'The' and 'a': al- and tanwīn",fr:"« Le » et « un » : al- et tanwīn"},
+ rule:{en:["Arabic has no word for <b>a</b>. Instead, an indefinite noun ends with a double vowel mark called <b>tanwīn</b>: -un, -an or -in. So kitābun means 'a book'.","To say <b>the</b>, put <b>al-</b> in front and drop the tanwīn: al-kitābu = the book.","Before 14 'sun letters' (t, th, d, dh, r, z, s, sh, ṣ, ḍ, ṭ, ẓ, l, n) the <b>l</b> of al- is not pronounced and the next letter is doubled: at-tuffāḥu, not al-tuffāḥu. Before the other letters (moon letters) you say the l."],
+       fr:["L'arabe n'a pas de mot pour <b>un/une</b>. Un nom indéfini se termine par une double voyelle appelée <b>tanwīn</b> : -un, -an ou -in. Ainsi kitābun signifie « un livre ».","Pour dire <b>le/la</b>, on place <b>al-</b> devant et on supprime le tanwīn : al-kitābu = le livre.","Devant 14 « lettres solaires » (t, th, d, dh, r, z, s, sh, ṣ, ḍ, ṭ, ẓ, l, n), le <b>l</b> de al- ne se prononce pas et la lettre suivante est doublée : at-tuffāḥu, et non al-tuffāḥu. Devant les autres lettres (lettres lunaires), on prononce le l."]},
+ ex:[["الْكِتَابُ","al-kitābu","the book (a book: kitābun)","le livre (un livre : kitābun)"],["الْبَيْتُ","al-baytu","the house (a house: baytun)","la maison (une maison : baytun)"],["الْحَلِيبُ","al-ḥalību","the milk (moon letter: the l is heard)","le lait (lettre lunaire : on entend le l)"],["التُّفَّاحُ","at-tuffāḥu","the apple (sun letter t)","la pomme (lettre solaire t)"],["السَّمَكُ","as-samaku","the fish (sun letter s)","le poisson (lettre solaire s)"]],
+ mistake:{en:"Do not use al- and tanwīn together. 'The book' is al-kitābu, never al-kitābun.",fr:"N'utilise pas al- et le tanwīn ensemble. « Le livre » se dit al-kitābu, jamais al-kitābun."}},
+
+{day:9,title:{en:"My, your, his: attached endings",fr:"Mon, ton, son : les terminaisons collées"},
+ rule:{en:["Instead of separate words for my, your and his, Arabic <b>glues a short ending</b> onto the noun: bayt (house) + ī = baytī (my house). You already use this in abī, ummī, ukhtī and kitābī.","The noun then counts as 'the', so it takes no al- and no tanwīn."],
+       fr:["Au lieu de mots séparés pour mon, ton et son, l'arabe <b>colle une courte terminaison</b> au nom : bayt (maison) + ī = baytī (ma maison). Tu l'utilises déjà dans abī, ummī, ukhtī et kitābī.","Le nom devient alors défini (« le »), donc il ne prend ni al- ni tanwīn."]},
+ ex:[["بَيْتِي","baytī","my house (-ī)","ma maison (-ī)"],["بَيْتُكَ","baytuka","your house, to a man (-ka)","ta maison, à un homme (-ka)"],["بَيْتُكِ","baytuki","your house, to a woman (-ki)","ta maison, à une femme (-ki)"],["بَيْتُهُ","baytuhu","his house (-hu)","sa maison, à lui (-hu)"],["بَيْتُهَا","baytuhā","her house (-hā)","sa maison, à elle (-hā)"],["بَيْتُنَا","baytunā","our house (-nā)","notre maison (-nā)"],["بَيْتُهُمْ","baytuhum","their house (-hum)","leur maison (-hum)"]],
+ mistake:{en:"Say baytī, never 'al-baytī'. And -hu or -hā depends on the owner, not on the thing owned: 'his book' and 'his sister' both use -hu.",fr:"Dis baytī, jamais « al-baytī ». Et -hu ou -hā dépend du possesseur, pas de la chose possédée : « son livre » et « sa sœur » (à lui) prennent tous deux -hu. C'est différent du français."}},
+
+{day:9,title:{en:"'Have': ʿinda",fr:"« Avoir » : ʿinda"},
+ rule:{en:["Arabic has no everyday verb 'to have'. It says <b>'at me there is'</b> with the word <b>ʿinda</b> (at, by) plus an ending: ʿindī = I have.","ʿinda takes the same endings as above. The owner comes first and the thing owned comes after, without 'the'."],
+       fr:["L'arabe n'a pas de verbe « avoir » courant. Il dit <b>« chez moi il y a »</b> avec le mot <b>ʿinda</b> (chez, auprès de) suivi d'une terminaison : ʿindī = j'ai.","ʿinda prend les mêmes terminaisons que ci-dessus. Le possesseur vient en premier, puis la chose possédée, sans « le »."]},
+ ex:[["عِنْدِي كِتَابٌ","ʿindī kitāb","I have a book","J'ai un livre"],["عِنْدَكَ بَيْتٌ","ʿindaka bayt","You have a house (to a man)","Tu as une maison (à un homme)"],["عِنْدَهُ أَخٌ","ʿindahu akh","He has a brother","Il a un frère"],["عِنْدَهَا أُخْتٌ","ʿindahā ukht","She has a sister","Elle a une sœur"]],
+ mistake:{en:"Do not look for a verb. Literally, ʿindahu akh is 'at him a brother'. (To say 'I do not have', you will use laysa on day 27.)",fr:"Ne cherche pas de verbe. Littéralement, ʿindahu akh = « chez lui un frère ». (Pour dire « je n'ai pas », tu utiliseras laysa au jour 27.)"}},
+
+{day:11,title:{en:"'X of Y': the boy's house",fr:"« X de Y » : la maison du garçon"},
+ rule:{en:["To say <b>X of Y</b>, put the two nouns next to each other: bayt al-walad = the house of the boy. This is called the <b>iḍāfa</b>.","The first noun loses al- and tanwīn. The second noun is definite and ends in <b>-i</b>: baytu l-waladi. A feminine -a becomes <b>-atu</b>: ghurfatu l-waladi.","A noun with an ending such as -ī counts as definite, so it can be the second noun: kitābu abī (my father's book)."],
+       fr:["Pour dire <b>X de Y</b>, on place les deux noms l'un à côté de l'autre : bayt al-walad = la maison du garçon. C'est ce qu'on appelle l'<b>iḍāfa</b>.","Le premier nom perd al- et le tanwīn. Le second nom est défini et se termine par <b>-i</b> : baytu l-waladi. Un -a féminin devient <b>-atu</b> : ghurfatu l-waladi.","Un nom avec une terminaison comme -ī est défini, donc il peut être le second nom : kitābu abī (le livre de mon père)."]},
+ ex:[["بَيْتُ الْوَلَدِ","baytu l-waladi","the boy's house","la maison du garçon"],["بَابُ الْبَيْتِ","bābu l-bayti","the door of the house","la porte de la maison"],["غُرْفَةُ الْوَلَدِ","ghurfatu l-waladi","the boy's room","la chambre du garçon"],["اِسْمُ الْبِنْتِ","ismu l-binti","the girl's name","le prénom de la fille"],["كِتَابُ أَبِي","kitābu abī","my father's book","le livre de mon père"]],
+ mistake:{en:"Never put al- on the first noun: 'the door of the house' is bābu l-bayti, not 'al-bābu l-bayti'. There is no Arabic word for 'of' or ''s': the word order does the job.",fr:"Ne mets jamais al- sur le premier nom : « la porte de la maison » se dit bābu l-bayti, et non « al-bābu l-bayti ». Il n'y a pas de mot pour « de » : c'est l'ordre des mots qui fait le travail."}},
+
+{day:13,title:{en:"Adjectives copy the noun",fr:"L'adjectif copie le nom"},
+ rule:{en:["An adjective <b>comes after</b> the noun and <b>copies</b> it: same gender, and the same 'the' or 'a'.","To make an adjective feminine, add <b>-a</b>: kabīr (m) becomes kabīra (f). A few colours change shape: abyaḍ (white, m) becomes bayḍāʾ (f).","<b>Phrase or sentence?</b> If both words have al-, it is a phrase: al-bābu l-jadīd = the new door. If only the noun has al-, it is a sentence: al-bābu jadīd = the door is new."],
+       fr:["L'adjectif <b>se place après</b> le nom et le <b>copie</b> : même genre, et même « le » ou « un ».","Pour mettre un adjectif au féminin, on ajoute <b>-a</b> : kabīr (m) devient kabīra (f). Quelques couleurs changent de forme : abyaḍ (blanc, m) devient bayḍāʾ (f).","<b>Groupe ou phrase ?</b> Si les deux mots ont al-, c'est un groupe : al-bābu l-jadīd = la nouvelle porte. Si seul le nom a al-, c'est une phrase : al-bābu jadīd = la porte est neuve."]},
+ ex:[["بَيْتٌ كَبِيرٌ","bayt kabīr","a big house","une grande maison"],["مَدْرَسَةٌ كَبِيرَةٌ","madrasa kabīra","a big school","une grande école"],["مَدْرَسَةٌ بَيْضَاءُ","madrasa bayḍāʾ","a white school (feminine colour)","une école blanche (couleur au féminin)"],["الْبَابُ الْجَدِيدُ","al-bābu l-jadīd","the new door (phrase)","la nouvelle porte (groupe)"],["الْبَابُ جَدِيدٌ","al-bābu jadīd","the door is new (sentence)","la porte est neuve (phrase)"],["الْمَدْرَسَةُ جَدِيدَةٌ","al-madrasatu jadīda","the school is new","l'école est neuve"]],
+ mistake:{en:"Do not put the adjective first ('kabīr bayt' is wrong). For 'the big house' both words need al-: al-baytu l-kabīr.",fr:"Ne place pas l'adjectif avant le nom (« kabīr bayt » est faux). Pour « la grande maison », les deux mots prennent al- : al-baytu l-kabīr."}},
+
+{day:16,title:{en:"Endings: -u, -a, -i",fr:"Les terminaisons : -u, -a, -i"},
+ rule:{en:["Arabic nouns change their <b>last vowel</b> to show their job in the sentence. You have already seen all three.","<b>-u</b> marks the subject, the one who is or does: al-waladu. <b>-a</b> marks the object, the thing the verb acts on: al-khubza. <b>-i</b> marks a noun after a preposition, or the second noun in 'X of Y': fī l-bayti.","With 'a' (indefinite) the endings are -un, -an, -in. In everyday speech people often drop them. In the Quran and in formal reading they are pronounced."],
+       fr:["Les noms arabes changent leur <b>dernière voyelle</b> pour montrer leur rôle dans la phrase. Tu as déjà vu les trois.","<b>-u</b> marque le sujet, celui qui est ou qui fait : al-waladu. <b>-a</b> marque le complément d'objet, ce sur quoi porte le verbe : al-khubza. <b>-i</b> marque un nom après une préposition, ou le second nom dans « X de Y » : fī l-bayti.","Avec « un » (indéfini), les terminaisons sont -un, -an, -in. Dans la conversation, on les supprime souvent. Dans le Coran et en lecture formelle, elles sont prononcées."]},
+ ex:[["الْوَلَدُ كَبِيرٌ","al-waladu kabīr","The boy is big (subject, -u)","Le garçon est grand (sujet, -u)"],["أُحِبُّ الْخُبْزَ","uḥibbu l-khubza","I like bread (object, -a)","J'aime le pain (objet, -a)"],["أَقْرَأُ كِتَابًا","aqraʾu kitāban","I read a book (object, -an)","Je lis un livre (objet, -an)"],["أَنَا فِي الْبَيْتِ","anā fī l-bayti","I am in the house (after fī, -i)","Je suis dans la maison (après fī, -i)"]],
+ mistake:{en:"Do not let endings block you. Your meaning is almost always clear without them. Get the word order and agreement right first, then add endings as polish. For reading the Quran, they matter more.",fr:"Ne laisse pas les terminaisons te bloquer. Ton sens est presque toujours clair sans elles. Maîtrise d'abord l'ordre des mots et l'accord, puis ajoute les terminaisons pour peaufiner. Pour lire le Coran, elles comptent davantage."}},
+
+{day:17,title:{en:"Prepositions, and a link to a greeting",fr:"Les prépositions, et un lien avec une salutation"},
+ rule:{en:["Prepositions are small words: fī (in), min (from), ilā (to), ʿalā (on), maʿa (with). The noun after them ends in <b>-i</b>. Min + al- is pronounced <b>mina l-</b>.","With a pronoun, the preposition takes an ending: fīhi (in it), minhu (from him), maʿahu (with him). Two of them change shape: ilā becomes <b>ilay-</b> and ʿalā becomes <b>ʿalay-</b>.","Now you can decode as-salāmu <b>ʿalay-kum</b>: 'peace (be) on you'."],
+       fr:["Les prépositions sont de petits mots : fī (dans), min (de, depuis), ilā (vers, à), ʿalā (sur), maʿa (avec). Le nom qui suit se termine par <b>-i</b>. Min + al- se prononce <b>mina l-</b>.","Avec un pronom, la préposition prend une terminaison : fīhi (dedans), minhu (de lui), maʿahu (avec lui). Deux d'entre elles changent de forme : ilā devient <b>ilay-</b> et ʿalā devient <b>ʿalay-</b>.","Tu peux maintenant décoder as-salāmu <b>ʿalay-kum</b> : « que la paix soit sur vous »."]},
+ ex:[["فِي الْبَيْتِ","fī l-bayti","in the house","dans la maison"],["مِنَ الْمَدْرَسَةِ","mina l-madrasati","from the school","de l'école"],["عَلَى الطَّاوِلَةِ","ʿalā ṭ-ṭāwilati","on the table","sur la table"],["مَعَ أَبِي","maʿa abī","with my father","avec mon père"],["فِيهِ","fīhi","in it","dedans"],["عَلَيْكُمْ","ʿalaykum","on you (plural)","sur vous"]],
+ mistake:{en:"Do not say 'ʿalā-kum'. Before an ending, ʿalā and ilā switch to ʿalay- and ilay-.",fr:"Ne dis pas « ʿalā-kum ». Devant une terminaison, ʿalā et ilā deviennent ʿalay- et ilay-."}},
+
+{day:18,title:{en:"Present tense: who is doing it",fr:"Le présent : qui fait l'action"},
+ rule:{en:["A present verb has a <b>prefix</b> (a short start) that shows who is doing it, plus an ending. Here is the root dh-h-b (go):","The same pattern works for most verbs: aktubu, taktubu, yaktubu, naktubu (write). Learn the prefixes <b>a- ta- ya- na-</b> and you can use any new verb straight away."],
+       fr:["Un verbe au présent a un <b>préfixe</b> (un court début) qui indique qui fait l'action, plus une terminaison. Voici la racine dh-h-b (aller) :","Le même schéma fonctionne pour la plupart des verbes : aktubu, taktubu, yaktubu, naktubu (écrire). Apprends les préfixes <b>a- ta- ya- na-</b> et tu peux employer n'importe quel nouveau verbe tout de suite."]},
+ table:[["أَذْهَبُ","adhhabu","I go","je vais"],["تَذْهَبُ","tadhhabu","you (to a man) go, or she goes","tu vas (à un homme), ou elle va"],["تَذْهَبِينَ","tadhhabīna","you (to a woman) go","tu vas (à une femme)"],["يَذْهَبُ","yadhhabu","he goes","il va"],["نَذْهَبُ","nadhhabu","we go","nous allons"],["يَذْهَبُونَ","yadhhabūna","they (men) go","ils vont"]],
+ ex:[["هُوَ يَذْهَبُ إِلَى الْمَدْرَسَةِ","huwa yadhhabu ilā l-madrasa","He goes to school","Il va à l'école"],["هِيَ تَكْتُبُ","hiya taktubu","She writes","Elle écrit"],["نَحْنُ نَشْرَبُ الْمَاءَ","naḥnu nashrabu l-māʾa","We drink the water","Nous buvons l'eau"]],
+ mistake:{en:"ta- means both 'you (to a man)' and 'she'. The pronoun (anta or hiya) or the context tells you which.",fr:"ta- signifie à la fois « tu (à un homme) » et « elle ». Le pronom (anta ou hiya) ou le contexte te dit lequel."}},
+
+{day:20,title:{en:"Plurals, and 'two'",fr:"Les pluriels, et « deux »"},
+ rule:{en:["Most Arabic plurals are <b>broken plurals</b>: the inside of the word changes, so you must learn each plural with its word. Some words, especially feminine ones, have a regular plural in <b>-āt</b>: ṣāliḥa becomes ṣāliḥāt (you know it from Al-ʿAsr).","The plural of <b>things</b> acts like one feminine singular word: al-kutubu jadīda = the books are new (literally 'the books, she is new').","<b>Two</b> of something has its own ending, the <b>dual</b>: -āni. Kitābāni = two books. You do not need to add the word ithnān."],
+       fr:["La plupart des pluriels arabes sont des <b>pluriels brisés</b> : l'intérieur du mot change, donc il faut apprendre chaque pluriel avec son mot. Certains mots, surtout féminins, ont un pluriel régulier en <b>-āt</b> : ṣāliḥa devient ṣāliḥāt (tu le connais dans Al-ʿAsr).","Le pluriel des <b>choses</b> se comporte comme un seul mot féminin singulier : al-kutubu jadīda = les livres sont neufs (littéralement « les livres, elle est neuve »).","<b>Deux</b> choses ont leur propre terminaison, le <b>duel</b> : -āni. Kitābāni = deux livres. Il n'est pas nécessaire d'ajouter le mot ithnān."]},
+ ex:[["كُتُبٌ","kutub","books (plural of kitāb)","des livres (pluriel de kitāb)"],["أَوْلَادٌ","awlād","boys, children (plural of walad)","des garçons, des enfants (pluriel de walad)"],["بُيُوتٌ","buyūt","houses (plural of bayt)","des maisons (pluriel de bayt)"],["أَبْوَابٌ","abwāb","doors (plural of bāb)","des portes (pluriel de bāb)"],["بَنَاتٌ","banāt","girls (plural of bint)","des filles (pluriel de bint)"],["الْكُتُبُ جَدِيدَةٌ","al-kutubu jadīda","The books are new","Les livres sont neufs"],["كِتَابَانِ","kitābāni","two books","deux livres"],["بَيْتَانِ","baytāni","two houses","deux maisons"]],
+ mistake:{en:"Do not invent plurals by adding -s. When you learn a new noun, learn its plural too and write it in your notebook. (The flashcards show the singular only.)",fr:"N'invente pas de pluriels en ajoutant -s. Quand tu apprends un nouveau nom, apprends aussi son pluriel et note-le dans ton cahier. (Les cartes montrent seulement le singulier.)"}},
+
+{day:22,title:{en:"Past tense: endings, not prefixes",fr:"Le passé : des terminaisons, pas des préfixes"},
+ rule:{en:["The simplest past verb is the 'he' form: kataba = he wrote. For other people you <b>add an ending</b> instead of a prefix. Here is dhahaba (went):","Present uses prefixes (aktubu), past uses endings (katabtu). That is the biggest difference between them. Al-ʿAsr has two examples: āmanū and ʿamilū are 'they' past verbs (ending -ū)."],
+       fr:["Le verbe au passé le plus simple est la forme « il » : kataba = il a écrit. Pour les autres personnes, on <b>ajoute une terminaison</b> au lieu d'un préfixe. Voici dhahaba (est allé) :","Le présent utilise des préfixes (aktubu), le passé des terminaisons (katabtu). C'est la plus grande différence entre les deux. Al-ʿAsr en contient deux exemples : āmanū et ʿamilū sont des verbes au passé à la forme « ils » (terminaison -ū)."]},
+ table:[["ذَهَبَ","dhahaba","he went","il est allé"],["ذَهَبَتْ","dhahabat","she went","elle est allée"],["ذَهَبْتُ","dhahabtu","I went","je suis allé(e)"],["ذَهَبْتَ","dhahabta","you (to a man) went","tu es allé (à un homme)"],["ذَهَبْنَا","dhahabnā","we went","nous sommes allés"],["ذَهَبُوا","dhahabū","they (men) went","ils sont allés"]],
+ ex:[["أَكَلْتُ الْخُبْزَ","akaltu l-khubza","I ate the bread","J'ai mangé le pain"],["ذَهَبَتْ إِلَى الْمَدْرَسَةِ","dhahabat ilā l-madrasa","She went to school","Elle est allée à l'école"],["شَرِبْنَا الْمَاءَ","sharibnā l-māʾa","We drank the water","Nous avons bu l'eau"]],
+ mistake:{en:"Do not mix them up: ya- at the start means 'he' in the present (yaktubu), and -at at the end means 'she' in the past (katabat).",fr:"Ne les confonds pas : ya- au début signifie « il » au présent (yaktubu), et -at à la fin signifie « elle » au passé (katabat)."}},
+
+{day:22,title:{en:"Roots: how Arabic words are built",fr:"Les racines : comment les mots arabes sont construits"},
+ rule:{en:["Most Arabic words are built from a <b>root</b> of three consonants that carries a core meaning. The root k-t-b is about writing. The vowels and extra letters around it make the exact word.","From k-t-b: kitāb (book), kataba (he wrote), aktubu (I write), yaktubu (he writes). From q-r-ʾ (reading): aqraʾu, qaraʾa, and the word Qurʾān itself, 'the reading'.","Spotting a root helps you guess new words and find them in a dictionary."],
+       fr:["La plupart des mots arabes sont construits à partir d'une <b>racine</b> de trois consonnes qui porte un sens de base. La racine k-t-b concerne l'écriture. Les voyelles et les lettres ajoutées autour forment le mot exact.","À partir de k-t-b : kitāb (livre), kataba (il a écrit), aktubu (j'écris), yaktubu (il écrit). À partir de q-r-ʾ (lire) : aqraʾu, qaraʾa, et le mot Qurʾān lui-même, « la lecture ».","Repérer une racine t'aide à deviner de nouveaux mots et à les chercher dans un dictionnaire."]},
+ ex:[["كِتَابٌ","kitāb","book (k-t-b)","livre (k-t-b)"],["كَتَبَ","kataba","he wrote (k-t-b)","il a écrit (k-t-b)"],["أَكْتُبُ","aktubu","I write (k-t-b)","j'écris (k-t-b)"],["قَرَأَ","qaraʾa","he read (q-r-ʾ)","il a lu (q-r-ʾ)"],["أَقْرَأُ","aqraʾu","I read (q-r-ʾ)","je lis (q-r-ʾ)"],["السَّلَامُ","as-salām","peace (s-l-m), from your first greeting","la paix (s-l-m), de ta première salutation"],["إِسْلَامٌ","islām","Islam, same root s-l-m (bonus word)","l'islam, même racine s-l-m (mot bonus)"],["مُسْلِمٌ","muslim","Muslim, same root s-l-m (bonus word)","musulman, même racine s-l-m (mot bonus)"]],
+ mistake:{en:"A root helps you guess, but it does not guarantee the meaning. Always check a new word in a dictionary.",fr:"Une racine aide à deviner, mais ne garantit pas le sens. Vérifie toujours un nouveau mot dans un dictionnaire."}},
+
+{day:27,title:{en:"Saying 'not', and yes or no questions",fr:"Dire « ne pas », et les questions par oui ou non"},
+ rule:{en:["Arabic has four main ways to say <b>not</b>, depending on what you are negating:","<b>hal</b> at the start turns any statement into a yes-or-no question: hal anta bi-khayr? = Are you well?"],
+       fr:["L'arabe a quatre façons principales de dire <b>ne pas</b>, selon ce que l'on nie :","<b>hal</b> au début transforme n'importe quelle phrase en question par oui ou non : hal anta bi-khayr ? = Vas-tu bien ?"]},
+ table:[["لَا أَذْهَبُ","lā adhhabu","I do not go (lā + present)","Je ne vais pas (lā + présent)"],["لَمْ أَذْهَبْ","lam adhhab","I did not go (lam + a 'cut short' present)","Je ne suis pas allé (lam + présent « raccourci »)"],["لَنْ أَذْهَبَ","lan adhhaba","I will not go (lan + present ending in -a)","Je n'irai pas (lan + présent en -a)"],["لَيْسَ الْبَيْتُ كَبِيرًا","laysa l-baytu kabīran","The house is not big (laysa, with nouns)","La maison n'est pas grande (laysa, avec des noms)"]],
+ ex:[["هَلْ أَنْتَ بِخَيْرٍ؟","hal anta bi-khayr?","Are you well?","Vas-tu bien ?"],["لَيْسَ عِنْدِي كِتَابٌ","laysa ʿindī kitāb","I do not have a book","Je n'ai pas de livre"]],
+ mistake:{en:"Do not use lā for the past: say lam adhhab, not 'lā dhahabtu'. After lam, the verb loses its final -u (it looks 'cut short').",fr:"N'utilise pas lā pour le passé : dis lam adhhab, et non « lā dhahabtu ». Après lam, le verbe perd son -u final (il paraît « raccourci »)."}},
+
+{day:29,title:{en:"Build any sentence: a checklist",fr:"Construire n'importe quelle phrase : une liste de contrôle"},
+ rule:{en:["Two sentence types cover most of what you will say. <b>Nominal</b> (no verb): al-baytu kabīr, anā bi-khayr. <b>Verbal</b>: verb, then who, then what: dhahaba l-waladu ilā l-madrasa.","When the verb comes <b>first</b>, standard Arabic keeps it singular even if the doers are plural (it still matches gender): dhahaba l-awlādu. When the doers come first, the verb agrees: al-awlādu dhahabū.","<b>Checklist.</b> 1) Is each noun masculine or feminine? 2) Do I need al- ('the') or tanwīn ('a')? 3) Does the adjective copy the noun? 4) Do I need an attached ending or 'X of Y'? 5) Present prefix or past ending? 6) Endings -u, -a, -i for polish."],
+       fr:["Deux types de phrases couvrent l'essentiel de ce que tu diras. <b>Nominale</b> (sans verbe) : al-baytu kabīr, anā bi-khayr. <b>Verbale</b> : le verbe, puis qui, puis quoi : dhahaba l-waladu ilā l-madrasa.","Quand le verbe vient <b>en premier</b>, l'arabe standard le laisse au singulier même si les sujets sont pluriels (il s'accorde quand même en genre) : dhahaba l-awlādu. Quand les sujets viennent en premier, le verbe s'accorde : al-awlādu dhahabū.","<b>Liste de contrôle.</b> 1) Chaque nom est-il masculin ou féminin ? 2) Faut-il al- (« le ») ou le tanwīn (« un ») ? 3) L'adjectif copie-t-il le nom ? 4) Faut-il une terminaison collée ou « X de Y » ? 5) Préfixe du présent ou terminaison du passé ? 6) Terminaisons -u, -a, -i pour peaufiner."]},
+ ex:[["ذَهَبَ الْأَوْلَادُ إِلَى الْمَدْرَسَةِ","dhahaba l-awlādu ilā l-madrasa","The boys went to school (verb first, singular)","Les garçons sont allés à l'école (verbe d'abord, singulier)"],["الْأَوْلَادُ ذَهَبُوا إِلَى الْمَدْرَسَةِ","al-awlādu dhahabū ilā l-madrasa","The boys went to school (doers first, verb agrees)","Les garçons sont allés à l'école (sujets d'abord, le verbe s'accorde)"],["ذَهَبَتِ الْبِنْتُ إِلَى الْمَدْرَسَةِ","dhahabati l-bintu ilā l-madrasa","The girl went to school (verb matches gender)","La fille est allée à l'école (le verbe s'accorde en genre)"]],
+ mistake:{en:"Do not wait for perfect grammar before you speak. A sentence with the right words in a simple order is understood. Fix one rule at a time.",fr:"N'attends pas d'avoir une grammaire parfaite pour parler. Une phrase avec les bons mots dans un ordre simple est comprise. Corrige une règle à la fois."}}
+];
+
+/* ---------- ISLAMIC STUDIES ---------- */
+// row = [arabic, transliteration, english, french]
+const IUI = {
+  en:{title:"Islamic studies",sub:"Short units for the whole family. One unit every two or three days works well.",note:"These units cover widely shared basics of Sunni Islam. For how to practise (for example, the details of prayer), follow your imam or teacher.",arabic:"Arabic to learn",talk:"Talk about it",check:"Check yourself (for the kids, in English)",start:"Start the questions",again:"Try again",best:"Best score",done:"Mark this unit as finished",undo:"Mark as not finished",fin:"Finished",next:"Next question",see:"See my score",stars:"stars earned in total",progress:(a,b)=>a+" of "+b+" units finished",right:"Right.",wrong:"Not quite. The right answer is highlighted."},
+  fr:{title:"Études islamiques",sub:"De courts thèmes pour toute la famille. Un thème tous les deux ou trois jours convient bien.",note:"Ces thèmes couvrent les bases largement partagées de l'islam sunnite. Pour la façon de pratiquer (par exemple les détails de la prière), suis ton imam ou ton enseignant.",arabic:"Arabe à apprendre",talk:"En parler en famille",check:"Teste-toi (pour les enfants, en anglais)",start:"Commencer les questions",again:"Réessayer",best:"Meilleur score",done:"Marquer ce thème comme terminé",undo:"Marquer comme non terminé",fin:"Terminé",next:"Question suivante",see:"Voir mon score",stars:"étoiles gagnées au total",progress:(a,b)=>a+" thèmes terminés sur "+b,right:"Bravo.",wrong:"Pas tout à fait. La bonne réponse est en couleur."}
+};
+const ISLAM = [
+{title:{en:"The five pillars of Islam",fr:"Les cinq piliers de l'islam"},
+ text:{en:["Islam is built on five pillars, like a house on five strong columns.","<b>1. Shahada</b>: saying, and believing, that there is no god but Allah and that Muhammad ﷺ is His messenger. <b>2. Salah</b>: praying five times a day. <b>3. Zakat</b>: giving a share of your wealth to people in need. <b>4. Sawm</b>: fasting in the month of Ramadan. <b>5. Hajj</b>: the pilgrimage to Makkah, once in a lifetime for those who are able."],
+       fr:["L'islam repose sur cinq piliers, comme une maison sur cinq solides colonnes.","<b>1. La shahada</b> : dire, et croire, qu'il n'y a de dieu qu'Allah et que Muhammad ﷺ est Son messager. <b>2. La salat</b> : prier cinq fois par jour. <b>3. La zakat</b> : donner une part de sa richesse aux personnes dans le besoin. <b>4. Le sawm</b> : jeûner pendant le mois de Ramadan. <b>5. Le hajj</b> : le pèlerinage à La Mecque, une fois dans la vie pour ceux qui en sont capables."]},
+ rows:[["أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ","ashhadu an lā ilāha illā llāh, wa ashhadu anna muḥammadan rasūlu llāh","I bear witness that there is no god but Allah, and I bear witness that Muhammad is the messenger of Allah","J'atteste qu'il n'y a de dieu qu'Allah, et j'atteste que Muhammad est le messager d'Allah"],
+       ["الشَّهَادَةُ","ash-shahāda","the testimony of faith","le témoignage de foi"],["الصَّلَاةُ","aṣ-ṣalāh","prayer","la prière"],["الزَّكَاةُ","az-zakāh","zakat, the purifying charity","la zakat, l'aumône purificatrice"],["الصَّوْمُ","aṣ-ṣawm","fasting","le jeûne"],["الْحَجُّ","al-ḥajj","the pilgrimage","le pèlerinage"]],
+ link:{en:"You already know lā (no, not) and ilāh (god). Look for them in the shahada.",fr:"Tu connais déjà lā (non, ne... pas) et ilāh (dieu). Cherche-les dans la shahada."},
+ talk:{en:"Ask each child: which pillar can you already practise? (Prayer and giving are things children can begin to learn now.)",fr:"Demande à chaque enfant : quel pilier peux-tu déjà pratiquer ? (La prière et le partage sont des choses que les enfants peuvent commencer à apprendre dès maintenant.)"},
+ qs:[{q:"How many pillars of Islam are there?",o:["Three","Four","Five","Six"],a:2},{q:"Which pillar is fasting?",o:["Salah","Sawm","Zakat","Hajj"],a:1},{q:"Which pillar is saying that there is no god but Allah?",o:["Hajj","Zakat","Sawm","Shahada"],a:3}]},
+
+{title:{en:"The six articles of faith",fr:"Les six articles de foi"},
+ text:{en:["Faith (<b>īmān</b>) has six parts. A Muslim believes in: 1) Allah, 2) His angels, 3) His books, 4) His messengers, 5) the Last Day, 6) the divine decree (<b>qadar</b>), both the easy and the hard.","The five pillars and the six articles of faith appear together in the famous hadith of Jibrīl (Sahih Muslim). The pillars are what we do. Īmān is what we believe in our hearts."],
+       fr:["La foi (<b>īmān</b>) comporte six éléments. Un musulman croit : 1) en Allah, 2) à Ses anges, 3) à Ses livres, 4) à Ses messagers, 5) au Jour dernier, 6) au décret divin (<b>qadar</b>), le facile comme le difficile.","Les cinq piliers et les six articles de foi apparaissent ensemble dans le célèbre hadith de Jibrīl (Sahih Muslim). Les piliers, c'est ce que nous faisons. L'īmān, c'est ce que nous croyons dans nos cœurs."]},
+ rows:[["الْإِيمَانُ","al-īmān","faith","la foi"],["اللَّهُ","Allāh","Allah, God","Allah, Dieu"],["الْمَلَائِكَةُ","al-malāʾika","the angels","les anges"],["الْكُتُبُ","al-kutub","the books","les livres"],["الرُّسُلُ","ar-rusul","the messengers","les messagers"],["الْيَوْمُ الْآخِرُ","al-yawmu l-ākhir","the Last Day","le Jour dernier"],["الْقَدَرُ","al-qadar","the divine decree","le décret divin"]],
+ link:{en:"You already know kitāb (book, so kutub is 'books') and yawm (day).",fr:"Tu connais déjà kitāb (livre, donc kutub = « livres ») et yawm (jour)."},
+ talk:{en:"Name an angel you have heard of. (Jibrīl brought the Quran to the Prophet ﷺ.)",fr:"Cite un ange que tu connais. (Jibrīl a apporté le Coran au Prophète ﷺ.)"},
+ qs:[{q:"How many articles of faith are there?",o:["Five","Six","Seven","Nine"],a:1},{q:"Which angel brought the Quran to the Prophet ﷺ?",o:["Mīkāʾīl","Isrāfīl","Jibrīl","Mālik"],a:2},{q:"What does al-yawmu l-ākhir mean?",o:["The first book","The Last Day","The holy month","The angels"],a:1}]},
+
+{title:{en:"Allah and His beautiful names",fr:"Allah et Ses beaux noms"},
+ text:{en:["Allah is One. He has no partner, no child and no equal. You are learning this in Surat al-Ikhlāṣ.","He has beautiful names, and traditionally 99 are taught. Each one tells us something about Him: His mercy, His knowledge, His power. We use them when we make du'a, and we try to show good qualities such as mercy and honesty in our own lives."],
+       fr:["Allah est Unique. Il n'a pas d'associé, pas d'enfant et pas d'égal. Tu l'apprends dans la sourate Al-Ikhlāṣ.","Il a de beaux noms, et on en enseigne traditionnellement 99. Chacun nous dit quelque chose sur Lui : Sa miséricorde, Sa science, Sa puissance. Nous les employons quand nous faisons des invocations (du'a), et nous essayons de montrer de bonnes qualités comme la miséricorde et l'honnêteté dans notre propre vie."]},
+ rows:[["الرَّحْمَنُ","ar-Raḥmān","the Most Merciful","le Tout Miséricordieux"],["الرَّحِيمُ","ar-Raḥīm","the Especially Merciful","le Très Miséricordieux"],["الْمَلِكُ","al-Malik","the King","le Roi"],["الْخَالِقُ","al-Khāliq","the Creator","le Créateur"],["الرَّزَّاقُ","ar-Razzāq","the Provider","le Pourvoyeur"],["الْعَلِيمُ","al-ʿAlīm","the All-Knowing","l'Omniscient"],["السَّمِيعُ","as-Samīʿ","the All-Hearing","celui qui entend tout"],["الْبَصِيرُ","al-Baṣīr","the All-Seeing","celui qui voit tout"],["الْغَفُورُ","al-Ghafūr","the Forgiving","le Pardonneur"]],
+ link:{en:"Ar-Raḥmān and ar-Raḥīm are in bismillāh and in Al-Fatiha. Al-Malik is the same word as malik in An-Nas.",fr:"Ar-Raḥmān et ar-Raḥīm sont dans la basmala et dans Al-Fatiha. Al-Malik est le même mot que malik dans An-Nas."},
+ talk:{en:"Pick one name a day and ask: where did we see this quality today? (For example, ar-Razzāq when we eat.)",fr:"Choisis un nom par jour et demande : où avons-nous vu cette qualité aujourd'hui ? (Par exemple, ar-Razzāq quand nous mangeons.)"},
+ qs:[{q:"What does ar-Raḥmān mean?",o:["The Creator","The Most Merciful","The King","The Provider"],a:1},{q:"Which name means 'The Creator'?",o:["al-Khāliq","as-Samīʿ","al-Ghafūr","al-ʿAlīm"],a:0},{q:"What does as-Samīʿ mean?",o:["The All-Seeing","The Forgiving","The All-Hearing","The Provider"],a:2}]},
+
+{title:{en:"Wudu: getting ready to pray",fr:"Le wudu : se préparer à prier"},
+ text:{en:["Wudu (ablution) is the washing we do before we pray. Many scholars also ask for it before touching the Quran.","The usual order: 1) Intend in your heart and say bismillāh. 2) Wash both hands. 3) Rinse the mouth, then sniff water into the nose and blow it out. 4) Wash the face. 5) Wash the right arm, then the left, up to the elbows. 6) Wipe the head with wet hands, including the ears. 7) Wash the right foot, then the left, up to the ankles. Each washing is usually done three times.","Wudu breaks after using the toilet, passing wind, deep sleep and similar things. The schools of thought differ on some details (such as which steps are required and which are recommended), so learn the exact practice from your imam or teacher."],
+       fr:["Le wudu (ablutions) est le lavage que nous faisons avant de prier. Beaucoup de savants le demandent aussi avant de toucher le Coran.","L'ordre habituel : 1) Avoir l'intention dans le cœur et dire bismillāh. 2) Se laver les deux mains. 3) Se rincer la bouche, puis aspirer de l'eau par le nez et la rejeter. 4) Se laver le visage. 5) Se laver le bras droit, puis le gauche, jusqu'aux coudes. 6) Passer les mains mouillées sur la tête, y compris les oreilles. 7) Se laver le pied droit, puis le gauche, jusqu'aux chevilles. Chaque lavage se fait généralement trois fois.","Le wudu s'annule après être allé aux toilettes, après avoir lâché un vent, après un sommeil profond et des choses semblables. Les écoles juridiques diffèrent sur certains détails (par exemple, quelles étapes sont obligatoires et lesquelles sont recommandées) : apprends donc la pratique exacte auprès de ton imam ou de ton enseignant."]},
+ rows:[["بِسْمِ اللَّهِ","bismi llāh","In the name of Allah (say it at the start)","Au nom d'Allah (à dire au début)"],["الْوُضُوءُ","al-wuḍūʾ","ablution","les ablutions"],["الْوَجْهُ","al-wajh","the face","le visage"],["الْيَدَانِ","al-yadāni","the two hands","les deux mains"],["الرَّأْسُ","ar-raʾs","the head","la tête"],["الرِّجْلَانِ","ar-rijlāni","the two feet","les deux pieds"],["أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ","ashhadu an lā ilāha illā llāhu waḥdahu lā sharīka lah, wa ashhadu anna muḥammadan ʿabduhu wa-rasūluh","The words said after wudu: I bear witness that there is no god but Allah alone, with no partner, and that Muhammad is His servant and messenger","Les paroles dites après le wudu : j'atteste qu'il n'y a de dieu qu'Allah seul, sans associé, et que Muhammad est Son serviteur et Son messager"]],
+ link:{en:"Al-yadāni and ar-rijlāni end in -āni: that is the 'two' ending from the plurals lesson.",fr:"Al-yadāni et ar-rijlāni se terminent par -āni : c'est la terminaison du « deux » de la leçon sur les pluriels."},
+ talk:{en:"Do wudu together once, slowly. Say each step out loud.",fr:"Faites le wudu ensemble une fois, lentement. Dites chaque étape à voix haute."},
+ qs:[{q:"What do we say at the start of wudu?",o:["Bismillāh","Allāhu akbar","Subḥāna llāh","Jazāka llāhu khayran"],a:0},{q:"After the face and arms, what do we wipe?",o:["The feet","The head","The knees","The back"],a:1},{q:"How many times do we usually wash each part?",o:["Once","Two","Three","Ten"],a:2}]},
+
+{title:{en:"The five daily prayers",fr:"Les cinq prières quotidiennes"},
+ text:{en:["Muslims pray five times a day: <b>Fajr</b> (dawn), <b>Dhuhr</b> (midday), <b>ʿAsr</b> (afternoon), <b>Maghrib</b> (just after sunset) and <b>ʿIshāʾ</b> (night). They have 2, 4, 4, 3 and 4 required rakʿahs (units of prayer).","In one rakʿah: stand and say Allāhu akbar, recite Al-Fatiha and another passage, bow (rukūʿ), stand up, then prostrate (sujūd), sit, and prostrate again. At the end of the prayer we sit and finish with the salām, to the right and to the left.","We pray facing the Kaaba in Makkah (the qibla). Small details, such as where to place the hands, differ between schools: copy your imam or teacher."],
+       fr:["Les musulmans prient cinq fois par jour : <b>Fajr</b> (l'aube), <b>Dhuhr</b> (midi), <b>ʿAsr</b> (l'après-midi), <b>Maghrib</b> (juste après le coucher du soleil) et <b>ʿIshāʾ</b> (la nuit). Elles comptent respectivement 2, 4, 4, 3 et 4 rakʿas obligatoires (unités de prière).","Dans une rakʿa : on se tient debout et on dit Allāhu akbar, on récite Al-Fatiha et un autre passage, on s'incline (rukūʿ), on se redresse, puis on se prosterne (sujūd), on s'assoit, et on se prosterne de nouveau. À la fin de la prière, on s'assoit et on termine par le salām, vers la droite puis vers la gauche.","On prie face à la Kaaba, à La Mecque (la qibla). Les petits détails, comme la position des mains, diffèrent selon les écoles : imite ton imam ou ton enseignant."]},
+ rows:[["الْفَجْرُ","al-fajr","Fajr, the dawn prayer (2)","Fajr, la prière de l'aube (2)"],["الظُّهْرُ","aẓ-ẓuhr","Dhuhr, the midday prayer (4)","Dhuhr, la prière de midi (4)"],["الْعَصْرُ","al-ʿaṣr","ʿAsr, the afternoon prayer (4)","ʿAsr, la prière de l'après-midi (4)"],["الْمَغْرِبُ","al-maghrib","Maghrib, the sunset prayer (3)","Maghrib, la prière du coucher du soleil (3)"],["الْعِشَاءُ","al-ʿishāʾ","ʿIshāʾ, the night prayer (4)","ʿIshāʾ, la prière de la nuit (4)"],["اللَّهُ أَكْبَرُ","Allāhu akbar","Allah is the Greatest (starting the prayer, moving between positions)","Allah est le Plus Grand (pour commencer la prière et passer d'une position à l'autre)"],["سُبْحَانَ رَبِّيَ الْعَظِيمِ","subḥāna rabbiya l-ʿaẓīm","Glory to my Lord, the Magnificent (in rukūʿ)","Gloire à mon Seigneur, l'Immense (dans le rukūʿ)"],["سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ","samiʿa llāhu liman ḥamidah","Allah hears whoever praises Him (rising from rukūʿ)","Allah entend celui qui Le loue (en se redressant du rukūʿ)"],["رَبَّنَا وَلَكَ الْحَمْدُ","rabbanā wa-laka l-ḥamd","Our Lord, to You is all praise","Notre Seigneur, à Toi la louange"],["سُبْحَانَ رَبِّيَ الْأَعْلَى","subḥāna rabbiya l-aʿlā","Glory to my Lord, the Most High (in sujūd)","Gloire à mon Seigneur, le Très-Haut (dans le sujūd)"],["السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ","as-salāmu ʿalaykum wa-raḥmatu llāh","Peace and Allah's mercy be on you (ending the prayer)","Que la paix et la miséricorde d'Allah soient sur vous (pour terminer la prière)"]],
+ link:{en:"ʿAṣr is also the name of a surah you know. In prayer you say rabb (Lord) and ḥamd (praise), two words from Al-Fatiha.",fr:"ʿAṣr est aussi le nom d'une sourate que tu connais. Dans la prière, tu dis rabb (Seigneur) et ḥamd (louange), deux mots de Al-Fatiha."},
+ talk:{en:"Say the five prayer names in order. Ask: which one is shortest? Which one has the most rakʿahs?",fr:"Dites les noms des cinq prières dans l'ordre. Demande : laquelle est la plus courte ? Laquelle compte le plus de rakʿas ?"},
+ qs:[{q:"How many daily prayers are there?",o:["Three","Four","Five","Seven"],a:2},{q:"Which prayer has three rakʿahs?",o:["Fajr","Maghrib","Dhuhr","ʿAsr"],a:1},{q:"What do we say when we bow (rukūʿ)?",o:["Subḥāna rabbiya l-ʿaẓīm","Bismi llāh","Al-ḥamdu lillāh","Astaghfiru llāh"],a:0}]},
+
+{title:{en:"The call to prayer (adhan)",fr:"L'appel à la prière (adhan)"},
+ text:{en:["The adhan is the call to prayer, announced before each of the five prayers. The <b>iqāma</b> is a second, shorter call said just before the prayer begins.","The adhan says: Allah is the Greatest; I bear witness that there is no god but Allah and that Muhammad ﷺ is His messenger; come to prayer; come to success. At Fajr, one more line is added: prayer is better than sleep."],
+       fr:["L'adhan est l'appel à la prière, lancé avant chacune des cinq prières. L'<b>iqāma</b> est un second appel, plus court, prononcé juste avant le début de la prière.","L'adhan dit : Allah est le Plus Grand ; j'atteste qu'il n'y a de dieu qu'Allah et que Muhammad ﷺ est Son messager ; venez à la prière ; venez à la réussite. À Fajr, une ligne est ajoutée : la prière est meilleure que le sommeil."]},
+ rows:[["اللَّهُ أَكْبَرُ","Allāhu akbar","Allah is the Greatest","Allah est le Plus Grand"],["أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ","ashhadu an lā ilāha illā llāh","I bear witness that there is no god but Allah","J'atteste qu'il n'y a de dieu qu'Allah"],["أَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ","ashhadu anna muḥammadan rasūlu llāh","I bear witness that Muhammad is the messenger of Allah","J'atteste que Muhammad est le messager d'Allah"],["حَيَّ عَلَى الصَّلَاةِ","ḥayya ʿalā ṣ-ṣalāh","Come to prayer","Venez à la prière"],["حَيَّ عَلَى الْفَلَاحِ","ḥayya ʿalā l-falāḥ","Come to success","Venez à la réussite"],["الصَّلَاةُ خَيْرٌ مِنَ النَّوْمِ","aṣ-ṣalātu khayrun mina n-nawm","Prayer is better than sleep (Fajr only)","La prière est meilleure que le sommeil (à Fajr seulement)"],["لَا إِلَهَ إِلَّا اللَّهُ","lā ilāha illā llāh","There is no god but Allah (the last line)","Il n'y a de dieu qu'Allah (dernière ligne)"]],
+ link:{en:"Khayr (good) is the word you know from bi-khayr. Ḥayya ʿalā uses ʿalā, from the prepositions lesson.",fr:"Khayr (bien) est le mot que tu connais dans bi-khayr. Ḥayya ʿalā emploie ʿalā, de la leçon sur les prépositions."},
+ talk:{en:"When you hear an adhan, pause and repeat its words quietly. Ask the kids which words they recognise.",fr:"Quand vous entendez un adhan, faites une pause et répétez ses paroles doucement. Demande aux enfants quels mots ils reconnaissent."},
+ qs:[{q:"What does 'Allāhu akbar' mean?",o:["Allah is One","Allah is the Greatest","Allah is Merciful","Praise be to Allah"],a:1},{q:"What does 'ḥayya ʿalā ṣ-ṣalāh' mean?",o:["Come to prayer","Come to success","Prayer is better than sleep","Peace be on you"],a:0},{q:"Which prayer's adhan adds 'prayer is better than sleep'?",o:["Dhuhr","Maghrib","ʿIshāʾ","Fajr"],a:3}]},
+
+{title:{en:"Everyday words and duas",fr:"Mots et invocations du quotidien"},
+ text:{en:["Muslims mention Allah throughout the day with short phrases. They are easy to learn, and children usually pick them up fast. Add one new phrase each week."],
+       fr:["Les musulmans mentionnent Allah tout au long de la journée avec de courtes expressions. Elles sont faciles à apprendre, et les enfants les retiennent généralement vite. Ajoutez une nouvelle expression par semaine."]},
+ rows:[["بِسْمِ اللَّهِ","bismi llāh","In the name of Allah (before eating or starting anything)","Au nom d'Allah (avant de manger ou de commencer quoi que ce soit)"],["الْحَمْدُ لِلَّهِ","al-ḥamdu lillāh","Praise be to Allah (after eating, after a sneeze, in any good moment)","Louange à Allah (après avoir mangé, après un éternuement, à chaque bon moment)"],["سُبْحَانَ اللَّهِ","subḥāna llāh","Glory be to Allah (when amazed)","Gloire à Allah (devant une merveille)"],["مَا شَاءَ اللَّهُ","mā shāʾa llāh","What Allah has willed (to admire something)","Ce qu'Allah a voulu (pour admirer quelque chose)"],["إِنْ شَاءَ اللَّهُ","in shāʾa llāh","If Allah wills (about the future)","Si Allah le veut (à propos de l'avenir)"],["أَسْتَغْفِرُ اللَّهَ","astaghfiru llāh","I ask Allah for forgiveness","Je demande pardon à Allah"],["جَزَاكَ اللَّهُ خَيْرًا","jazāka llāhu khayran","May Allah reward you with good (thank you, to a man)","Qu'Allah te récompense par le bien (merci, à un homme)"],["يَرْحَمُكَ اللَّهُ","yarḥamuka llāh","May Allah have mercy on you (to someone who sneezes and says al-ḥamdu lillāh)","Qu'Allah te fasse miséricorde (à quelqu'un qui éternue et dit al-ḥamdu lillāh)"],["السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ","as-salāmu ʿalaykum wa-raḥmatu llāhi wa-barakātuh","Peace be on you, and Allah's mercy and blessings (the full greeting)","Que la paix, la miséricorde et les bénédictions d'Allah soient sur vous (la salutation complète)"],["وَعَلَيْكُمُ السَّلَامُ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ","wa-ʿalaykumu s-salāmu wa-raḥmatu llāhi wa-barakātuh","And on you be peace, and Allah's mercy and blessings (the reply)","Et sur vous la paix, la miséricorde et les bénédictions d'Allah (la réponse)"],["بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا","bismika llāhumma amūtu wa-aḥyā","In Your name, O Allah, I die and I live (before sleep)","En Ton nom, ô Allah, je meurs et je vis (avant de dormir)"],["الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ","al-ḥamdu lillāhi lladhī aḥyānā baʿda mā amātanā wa-ilayhi n-nushūr","Praise be to Allah who gave us life after He caused us to die, and to Him is the return (on waking)","Louange à Allah qui nous a rendu la vie après nous avoir fait mourir, et c'est vers Lui la résurrection (au réveil)"]],
+ link:{en:"Ḥamd from Al-Fatiha is inside al-ḥamdu lillāh. Alladhī (who) from your Quran words is in the waking dua.",fr:"Ḥamd de Al-Fatiha est dans al-ḥamdu lillāh. Alladhī (qui), de tes mots du Coran, est dans l'invocation du réveil."},
+ talk:{en:"Choose one phrase for this week. Everyone who remembers to say it gets a star on the family chart.",fr:"Choisissez une expression pour cette semaine. Chaque personne qui pense à la dire reçoit une étoile sur le tableau de la famille."},
+ qs:[{q:"What do we say before eating?",o:["Bismi llāh","Subḥāna llāh","Astaghfiru llāh","Mā shāʾa llāh"],a:0},{q:"What is the reply to 'as-salāmu ʿalaykum'?",o:["Jazāka llāhu khayran","Wa-ʿalaykumu s-salām","In shāʾa llāh","Allāhu akbar"],a:1},{q:"What does 'in shāʾa llāh' mean?",o:["Thank you","I am sorry","If Allah wills","Welcome"],a:2}]},
+
+{title:{en:"Ramadan and the two Eids",fr:"Le Ramadan et les deux Aïds"},
+ text:{en:["Ramadan is the ninth month of the Islamic (Hijri) calendar. Muslims who are able fast every day from dawn (Fajr) until sunset (Maghrib): no food and no drink. It is also a month of Quran, extra prayers and charity. The Quran began to be revealed in Ramadan, and Laylat al-Qadr, the Night of Power, is in the last ten nights.","Fasting is required of adults. Children can practise gently, for example by fasting for part of a day. People who are ill or travelling, and some others, may delay their fast and make it up later (ask your imam).","There are two Eids. <b>Eid al-Fitr</b> celebrates the end of Ramadan, and zakat al-fiṭr is given before its prayer. <b>Eid al-Adha</b> falls in the days of Hajj."],
+       fr:["Le Ramadan est le neuvième mois du calendrier islamique (hégirien). Les musulmans qui en sont capables jeûnent chaque jour de l'aube (Fajr) jusqu'au coucher du soleil (Maghrib) : ni nourriture ni boisson. C'est aussi un mois de Coran, de prières supplémentaires et de charité. Le Coran a commencé à être révélé pendant le Ramadan, et Laylat al-Qadr, la Nuit du Destin, se trouve dans les dix dernières nuits.","Le jeûne est obligatoire pour les adultes. Les enfants peuvent s'y exercer doucement, par exemple en jeûnant une partie de la journée. Les malades, les voyageurs et quelques autres peuvent reporter leur jeûne et le rattraper plus tard (demande à ton imam).","Il y a deux Aïds. <b>L'Aïd al-Fitr</b> célèbre la fin du Ramadan, et la zakat al-fiṭr est donnée avant sa prière. <b>L'Aïd al-Adha</b> tombe pendant les jours du Hajj."]},
+ rows:[["رَمَضَانُ","ramaḍān","Ramadan, the ninth month","le Ramadan, le neuvième mois"],["الصِّيَامُ","aṣ-ṣiyām","fasting","le jeûne"],["السُّحُورُ","as-suḥūr","the meal before dawn","le repas avant l'aube"],["الْإِفْطَارُ","al-iftār","breaking the fast at sunset","la rupture du jeûne au coucher du soleil"],["ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ","dhahaba ẓ-ẓamaʾu wa-btallati l-ʿurūqu wa-thabata l-ajru in shāʾa llāh","The thirst has gone, the veins are moist, and the reward is confirmed, if Allah wills (said when breaking the fast, narrated by Abu Dawud)","La soif est partie, les veines sont humides et la récompense est confirmée, si Allah le veut (dit à la rupture du jeûne, rapporté par Abu Dawud)"],["عِيدُ الْفِطْرِ","ʿīdu l-fiṭr","Eid al-Fitr, the festival of breaking the fast","l'Aïd al-Fitr, la fête de la rupture du jeûne"],["عِيدُ الْأَضْحَى","ʿīdu l-aḍḥā","Eid al-Adha, the festival of sacrifice","l'Aïd al-Adha, la fête du sacrifice"],["لَيْلَةُ الْقَدْرِ","laylatu l-qadr","the Night of Power","la Nuit du Destin"]],
+ link:{en:"ʿĪdu l-fiṭr and laylatu l-qadr are 'X of Y' phrases (the iḍāfa lesson). In the iftar dua, dhahaba is the past verb 'he went' from day 22: here it means 'has gone'.",fr:"ʿĪdu l-fiṭr et laylatu l-qadr sont des groupes « X de Y » (leçon sur l'iḍāfa). Dans l'invocation de l'iftar, dhahaba est le verbe passé « il est allé » du jour 22 : ici il signifie « est parti »."},
+ talk:{en:"Ask: what would you share with someone who is hungry? Plan one act of giving this week.",fr:"Demande : que partagerais-tu avec quelqu'un qui a faim ? Planifiez un geste de partage cette semaine."},
+ qs:[{q:"Ramadan is which month of the Islamic calendar?",o:["The first","The ninth","The tenth","The twelfth"],a:1},{q:"When does the fast begin each day?",o:["At midday","At sunset","At dawn (Fajr)","At midnight"],a:2},{q:"Which Eid comes at the end of Ramadan?",o:["Eid al-Adha","Eid al-Fitr","Eid al-Qadr","Eid al-Hajj"],a:1}]},
+
+{title:{en:"Giving and pilgrimage: zakat and Hajj",fr:"Donner et pèleriner : la zakat et le hajj"},
+ text:{en:["<b>Zakat</b> is a yearly obligation for Muslims whose savings are above a minimum level (the nisab). On savings it is usually 2.5%. It goes to people in need and to the other groups named in the Quran. Rules differ by type of wealth, so ask a scholar. <b>Ṣadaqa</b> is any extra giving, and the Prophet ﷺ taught that kindness, even a smile, counts as charity.","<b>Hajj</b> is the pilgrimage to Makkah in the month of Dhul-Hijjah. It is required once in a lifetime for those who are physically and financially able. Pilgrims walk around the Kaaba (ṭawāf), stand at ʿArafa, and the pilgrimage ends with Eid al-Adha. <b>ʿUmra</b> is a shorter visit that can be done at any time of year."],
+       fr:["La <b>zakat</b> est une obligation annuelle pour les musulmans dont l'épargne dépasse un seuil minimal (le nisab). Sur l'épargne, elle est généralement de 2,5 %. Elle va aux personnes dans le besoin et aux autres catégories citées dans le Coran. Les règles varient selon le type de richesse : demande à un savant. La <b>ṣadaqa</b> est tout don supplémentaire, et le Prophète ﷺ a enseigné que la bonté, même un sourire, compte comme une aumône.","Le <b>hajj</b> est le pèlerinage à La Mecque, au mois de Dhul-Hijja. Il est obligatoire une fois dans la vie pour ceux qui en sont physiquement et financièrement capables. Les pèlerins tournent autour de la Kaaba (ṭawāf), se tiennent à ʿArafa, et le pèlerinage se termine avec l'Aïd al-Adha. La <b>ʿumra</b> est une visite plus courte qui peut se faire à n'importe quelle période de l'année."]},
+ rows:[["الزَّكَاةُ","az-zakāh","zakat, the yearly obligatory charity","la zakat, l'aumône annuelle obligatoire"],["الصَّدَقَةُ","aṣ-ṣadaqa","voluntary charity","l'aumône volontaire"],["الْحَجُّ","al-ḥajj","the pilgrimage","le pèlerinage"],["الْعُمْرَةُ","al-ʿumra","the lesser pilgrimage","le petit pèlerinage"],["الْكَعْبَةُ","al-kaʿba","the Kaaba","la Kaaba"],["مَكَّةُ","makka","Makkah","La Mecque"],["الْمَدِينَةُ","al-madīna","Madinah, 'the city'","Médine, « la ville »"],["لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ","labbayka llāhumma labbayk, labbayka lā sharīka laka labbayk, inna l-ḥamda wa-n-niʿmata laka wa-l-mulk, lā sharīka lak","Here I am, O Allah, here I am. Here I am, You have no partner, here I am. All praise, grace and sovereignty belong to You. You have no partner. (The pilgrims' call)","Me voici, ô Allah, me voici. Me voici, Tu n'as pas d'associé, me voici. À Toi la louange, la grâce et la royauté. Tu n'as pas d'associé. (L'appel des pèlerins)"]],
+ link:{en:"Al-madīna is the same word as madīna (city) from day 20. In the talbiya, inna (indeed) and lā (no) are words you know.",fr:"Al-madīna est le même mot que madīna (ville) du jour 20. Dans la talbiya, inna (certes) et lā (non) sont des mots que tu connais."},
+ talk:{en:"Ask: what is something you can give this week? (Time, a toy, help, a kind word.)",fr:"Demande : que peux-tu donner cette semaine ? (Du temps, un jouet, de l'aide, une bonne parole.)"},
+ qs:[{q:"How much is zakat on savings, usually?",o:["1%","2.5%","10%","50%"],a:1},{q:"Where do Muslims go for Hajj?",o:["Madinah","Jerusalem","Makkah","Cairo"],a:2},{q:"What is the cube-shaped house of Allah in Makkah called?",o:["The Kaaba","The Minbar","The Mihrab","The Masjid"],a:0}]},
+
+{title:{en:"The prophets",fr:"Les prophètes"},
+ text:{en:["Allah sent prophets and messengers to guide people. All of them called people to worship Allah alone. The Quran names 25 of them. We love and respect them all, and after the name of a prophet we say 'peace be upon him'.","Muhammad ﷺ is the last prophet and the Quran is the last revelation."],
+       fr:["Allah a envoyé des prophètes et des messagers pour guider les gens. Tous ont appelé à adorer Allah seul. Le Coran en nomme 25. Nous les aimons et les respectons tous, et après le nom d'un prophète nous disons « que la paix soit sur lui ».","Muhammad ﷺ est le dernier prophète et le Coran est la dernière révélation."]},
+ rows:[["آدَمُ","Ādam","the first human and first prophet","le premier être humain et premier prophète"],["نُوحٌ","Nūḥ","Noah, who built the ark","Noé, qui a construit l'arche"],["إِبْرَاهِيمُ","Ibrāhīm","Abraham, who built the Kaaba with his son Ismāʿīl","Abraham, qui a bâti la Kaaba avec son fils Ismāʿīl"],["مُوسَى","Mūsā","Moses, given the Tawrāh","Moïse, à qui fut donnée la Tawrāh"],["دَاوُدُ","Dāwūd","David, given the Zabūr","David, à qui fut donné le Zabūr"],["عِيسَى","ʿĪsā","Jesus, born to Maryam, given the Injīl","Jésus, né de Maryam, à qui fut donné l'Injīl"],["مُحَمَّدٌ","Muḥammad","the last prophet, who received the Quran","le dernier prophète, qui a reçu le Coran"],["عَلَيْهِ السَّلَامُ","ʿalayhi s-salām","peace be upon him (after a prophet's name)","que la paix soit sur lui (après le nom d'un prophète)"],["صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ","ṣallā llāhu ʿalayhi wa-sallam","may Allah's peace and blessings be upon him (after Muhammad's name)","qu'Allah répande sur lui Sa paix et Ses bénédictions (après le nom de Muhammad)"]],
+ link:{en:"ʿAlayhi is ʿalā plus -hi: the same 'ʿalay- + ending' you met in the prepositions lesson, as in ʿalaykum.",fr:"ʿAlayhi est ʿalā plus -hi : le même « ʿalay- + terminaison » de la leçon sur les prépositions, comme dans ʿalaykum."},
+ talk:{en:"Pick one prophet. Tell his story in three sentences, and let the children add one more.",fr:"Choisis un prophète. Raconte son histoire en trois phrases, et laisse les enfants en ajouter une."},
+ qs:[{q:"Who built the Kaaba with his son Ismāʿīl?",o:["Nūḥ","Ibrāhīm","Mūsā","Ādam"],a:1},{q:"Which prophet built the ark?",o:["Nūḥ","ʿĪsā","Dāwūd","Muḥammad"],a:0},{q:"Who is the last prophet?",o:["Mūsā","ʿĪsā","Ibrāhīm","Muḥammad ﷺ"],a:3}]},
+
+{title:{en:"The life of the Prophet Muhammad ﷺ",fr:"La vie du Prophète Muhammad ﷺ"},
+ text:{en:["Muhammad ﷺ was born in Makkah around the year 570. His father died before he was born and his mother when he was about six, so his grandfather and then his uncle Abu Talib looked after him. People called him <b>al-Amīn</b>, the trustworthy. He married Khadīja.","At about forty, in the cave of Ḥirāʾ, the angel Jibrīl brought the first revelation: <b>Iqraʾ</b>, 'Read'. For about thirteen years he called people to Allah in Makkah, facing hardship. In 622 he moved to Madinah. This move, the <b>Hijra</b>, is the start of the Islamic calendar. He passed away in Madinah in 632, aged about 63.","He taught by example: honesty, mercy and patience. Muslims follow his way, called the sunna."],
+       fr:["Muhammad ﷺ est né à La Mecque vers l'an 570. Son père est mort avant sa naissance et sa mère quand il avait environ six ans ; son grand-père puis son oncle Abu Talib se sont occupés de lui. Les gens l'appelaient <b>al-Amīn</b>, le digne de confiance. Il a épousé Khadīja.","Vers quarante ans, dans la grotte de Ḥirāʾ, l'ange Jibrīl lui a apporté la première révélation : <b>Iqraʾ</b>, « Lis ». Pendant environ treize ans, il a appelé les gens à Allah à La Mecque, face à des épreuves. En 622, il est parti pour Médine. Ce départ, la <b>Hijra</b>, marque le début du calendrier islamique. Il est décédé à Médine en 632, à environ 63 ans.","Il a enseigné par l'exemple : honnêteté, miséricorde et patience. Les musulmans suivent sa voie, appelée la sunna."]},
+ rows:[["الْأَمِينُ","al-amīn","the trustworthy","le digne de confiance"],["غَارُ حِرَاءٍ","ghāru ḥirāʾ","the cave of Ḥirāʾ","la grotte de Ḥirāʾ"],["اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ","iqraʾ bismi rabbika lladhī khalaq","Read in the name of your Lord who created (the first words revealed)","Lis au nom de ton Seigneur qui a créé (les premiers mots révélés)"],["الْهِجْرَةُ","al-hijra","the migration from Makkah to Madinah","l'émigration de La Mecque à Médine"],["النَّبِيُّ","an-nabī","the prophet","le prophète"],["رَسُولُ اللَّهِ","rasūlu llāh","the messenger of Allah","le messager d'Allah"],["السُّنَّةُ","as-sunna","the way of the Prophet ﷺ","la voie du Prophète ﷺ"]],
+ link:{en:"Iqraʾ comes from q-r-ʾ, the same root as aqraʾu (I read) and qaraʾa (he read). Rabb and alladhī are in the first verse you can already read. Ghāru ḥirāʾ and rasūlu llāh are 'X of Y' phrases.",fr:"Iqraʾ vient de q-r-ʾ, la même racine que aqraʾu (je lis) et qaraʾa (il a lu). Rabb et alladhī sont dans le premier verset que tu peux déjà lire. Ghāru ḥirāʾ et rasūlu llāh sont des groupes « X de Y »."},
+ talk:{en:"Ask: why did people call him al-Amīn? What does it take to be trusted? Tell one small story of being trustworthy.",fr:"Demande : pourquoi l'appelait-on al-Amīn ? Que faut-il pour mériter la confiance ? Racontez chacun une petite histoire où l'on s'est montré digne de confiance."},
+ qs:[{q:"In which city was the Prophet ﷺ born?",o:["Madinah","Makkah","Jerusalem","Taif"],a:1},{q:"What is the move from Makkah to Madinah called?",o:["Hajj","Hijra","Adhan","Iqāma"],a:1},{q:"What was he known as before he became a prophet?",o:["Al-Amīn (the trustworthy)","Al-Malik (the king)","Al-Muʿallim (the teacher)","Al-Khāliq (the creator)"],a:0}]},
+
+{title:{en:"Good manners and first hadiths",fr:"Le bon comportement et premiers hadiths"},
+ text:{en:["Islam teaches good manners (<b>akhlāq</b>): telling the truth, being kind to parents, neighbours and animals, keeping promises, and controlling anger. The Prophet ﷺ taught that the best people are those with the best character.","Here are five short hadiths, all in the collections of Bukhari and Muslim, that are also in the Forty Hadith of an-Nawawi. They are short enough for children to memorise."],
+       fr:["L'islam enseigne le bon comportement (<b>akhlāq</b>) : dire la vérité, être bon envers ses parents, ses voisins et les animaux, tenir ses promesses et maîtriser sa colère. Le Prophète ﷺ a enseigné que les meilleurs sont ceux qui ont le meilleur caractère.","Voici cinq courts hadiths, tous dans les recueils de Bukhari et de Muslim, qui figurent aussi dans les Quarante hadiths d'an-Nawawi. Ils sont assez courts pour que les enfants les mémorisent."]},
+ rows:[["إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ","innamā l-aʿmālu bi-n-niyyāt","Actions are judged by intentions (Bukhari and Muslim)","Les actes valent par les intentions (Bukhari et Muslim)"],["الدِّينُ النَّصِيحَةُ","ad-dīnu n-naṣīḥa","The religion is sincere advice (Muslim)","La religion, c'est le conseil sincère (Muslim)"],["لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ","lā yuʾminu aḥadukum ḥattā yuḥibba li-akhīhi mā yuḥibbu li-nafsih","None of you truly believes until he loves for his brother what he loves for himself (Bukhari and Muslim)","Aucun de vous ne croit vraiment tant qu'il n'aime pas pour son frère ce qu'il aime pour lui-même (Bukhari et Muslim)"],["مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ","man kāna yuʾminu billāhi wa-l-yawmi l-ākhiri fa-l-yaqul khayran aw li-yaṣmut","Whoever believes in Allah and the Last Day should speak good or keep silent (Bukhari and Muslim)","Que celui qui croit en Allah et au Jour dernier dise du bien ou se taise (Bukhari et Muslim)"],["لَا تَغْضَبْ","lā taghḍab","Do not get angry (Bukhari)","Ne te mets pas en colère (Bukhari)"]],
+ link:{en:"Lā taghḍab is lā plus a 'cut-short' verb, the same shape you met after lam. With lā it is a command not to do something. You also know dīn, khayr, aw, yawm and uḥibbu.",fr:"Lā taghḍab est lā plus un verbe « raccourci », la même forme que celle vue après lam. Avec lā, c'est un ordre de ne pas faire quelque chose. Tu connais aussi dīn, khayr, aw, yawm et uḥibbu."},
+ talk:{en:"Pick one hadith for the week. Each evening, ask: when did we follow it today?",fr:"Choisis un hadith pour la semaine. Chaque soir, demande : quand l'avons-nous appliqué aujourd'hui ?"},
+ qs:[{q:"What does 'lā taghḍab' mean?",o:["Do not lie","Do not get angry","Do not be late","Do not forget"],a:1},{q:"Whoever believes in Allah should speak good or...",o:["Shout","Keep silent","Leave","Argue"],a:1},{q:"'Actions are judged by...'",o:["Size","Speed","Intentions","Time"],a:2}]},
+
+{title:{en:"The Quran",fr:"Le Coran"},
+ text:{en:["The Quran is the word of Allah, revealed to the Prophet ﷺ in Arabic through Jibrīl over about 23 years. It has 114 surahs and is divided into 30 equal parts called <b>juz</b>. The first words revealed were the opening of Surat al-ʿAlaq. The first surah in the book is Al-Fātiḥa.","Muslims recite it, memorise it, and try to understand it and live by it. When we start to recite we say 'I seek refuge in Allah from the rejected devil' and then bismillāh. We keep ourselves clean and listen quietly when it is recited."],
+       fr:["Le Coran est la parole d'Allah, révélée au Prophète ﷺ en arabe par l'intermédiaire de Jibrīl sur environ 23 ans. Il compte 114 sourates et se divise en 30 parties égales appelées <b>juz</b>. Les premiers mots révélés sont le début de la sourate Al-ʿAlaq. La première sourate du livre est Al-Fātiḥa.","Les musulmans le récitent, le mémorisent, et essaient de le comprendre et de le vivre. Quand nous commençons à réciter, nous disons « je cherche refuge auprès d'Allah contre Satan le maudit », puis bismillāh. Nous restons propres et nous écoutons en silence quand il est récité."]},
+ rows:[["الْقُرْآنُ","al-qurʾān","the Quran, 'the reading'","le Coran, « la lecture »"],["سُورَةٌ","sūra","a chapter (114 in total)","une sourate (114 au total)"],["آيَةٌ","āya","a verse (also means 'sign')","un verset (signifie aussi « signe »)"],["جُزْءٌ","juzʾ","one of the 30 parts","l'une des 30 parties"],["أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ","aʿūdhu billāhi mina sh-shayṭāni r-rajīm","I seek refuge in Allah from the rejected devil","Je cherche refuge auprès d'Allah contre Satan le maudit"],["بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ","bismi llāhi r-raḥmāni r-raḥīm","In the name of Allah, the Most Merciful, the Especially Merciful","Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux"],["الْفَاتِحَةُ","al-fātiḥa","the Opening","l'Ouverture"],["الْإِخْلَاصُ","al-ikhlāṣ","Sincerity","la Sincérité"],["النَّاسُ","an-nās","Mankind","les Hommes"],["الْعَصْرُ","al-ʿaṣr","Time","le Temps"]],
+ link:{en:"Aʿūdhu is the first word of your An-Nas dua. Al-qurʾān comes from the root q-r-ʾ (reading), like aqraʾu. The last four rows are the surahs you are learning.",fr:"Aʿūdhu est le premier mot de ton invocation dans An-Nas. Al-qurʾān vient de la racine q-r-ʾ (lire), comme aqraʾu. Les quatre dernières lignes sont les sourates que tu apprends."},
+ talk:{en:"Count together: how many surahs do we know by heart? Choose the next short surah to learn as a family.",fr:"Comptez ensemble : combien de sourates connaissons-nous par cœur ? Choisissez la prochaine courte sourate à apprendre en famille."},
+ qs:[{q:"How many surahs are in the Quran?",o:["30","99","114","144"],a:2},{q:"Which surah opens the Quran?",o:["Al-Ikhlāṣ","Al-Fātiḥa","An-Nās","Al-ʿAṣr"],a:1},{q:"What was the first word revealed, 'Iqraʾ'?",o:["Pray","Fast","Give","Read"],a:3}]}
+];
+
+/* ---------- STATE ---------- */
+const KEY = "arabic30-v1";
+const INTERVALS = [0,1,2,4,8,16,32];
+const S = {day:1, tasks:{}, cards:{}, stars:0, active:[], glang:"en", islam:{done:{},best:{}}};
+const UI = {tab:"today", view:1, q:null, letter:null, quiz:null, resetArm:false, gopen:null, iopen:null, iq:null};
+
+const ALL = [];
+DAYS.forEach((D,di)=>{
+  D.words.forEach((w,i)=>ALL.push({id:(di+1)+"g"+i,day:di+1,ar:w[0],tr:w[1],en:w[2],q:false}));
+  D.quran.forEach((w,i)=>ALL.push({id:(di+1)+"q"+i,day:di+1,ar:w[0],tr:w[1],en:w[2],q:true}));
+});
+
+async function load(){
+  try{
+    let v=null;
+    if(window.storage){ const r=await window.storage.get(KEY); v=r&&r.value; }
+    else { v=localStorage.getItem(KEY); }
+    if(v) Object.assign(S, JSON.parse(v));
+  }catch(e){}
+}
+async function save(){
+  try{
+    const v=JSON.stringify(S);
+    if(window.storage) await window.storage.set(KEY, v);
+    else localStorage.setItem(KEY, v);
+  }catch(e){}
+}
+
+/* ---------- HELPERS ---------- */
+const $app = document.getElementById("app");
+function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function markActive(){const t=fmt(new Date()); if(!S.active.includes(t)) S.active.push(t);}
+function streak(){
+  let n=0; const d=new Date();
+  if(!S.active.includes(fmt(d))) d.setDate(d.getDate()-1);
+  while(S.active.includes(fmt(d))){n++; d.setDate(d.getDate()-1);}
+  return n;
+}
+function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function taskCount(n){let c=0; for(let i=0;i<6;i++) if(S.tasks[n+":"+i]) c++; return c;}
+function dayDone(n){return taskCount(n)===6;}
+
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200);
+}
+function speak(text){
+  if(!("speechSynthesis" in window)){toast("Audio is not available on this device."); return;}
+  const voices=speechSynthesis.getVoices();
+  const v=voices.find(x=>x.lang && x.lang.toLowerCase().startsWith("ar"));
+  if(!v && voices.length){toast("No Arabic voice found. Add one in your device's text-to-speech settings."); return;}
+  const u=new SpeechSynthesisUtterance(text); u.lang="ar-SA"; u.rate=0.8; if(v) u.voice=v;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+if("speechSynthesis" in window) speechSynthesis.getVoices();
+
+/* ---------- VIEWS ---------- */
+function wordRow(w){
+  return `<div class="wr"><div class="wl"><span class="tr">${w[1]}</span><span class="en">${w[2]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${w[0]}" aria-label="Hear ${w[1]}">${w[0]}</button></div>`;
+}
+function taskBlock(n,i,title,body){
+  const k=n+":"+i, on=!!S.tasks[k];
+  return `<section class="task ${on?"on":""}"><button class="chk" role="checkbox" aria-checked="${on}" aria-label="Done: ${title}" data-a="toggle" data-k="${k}">${on?"✓":""}</button><div class="tb"><h3>${title}</h3>${body}</div></section>`;
+}
+
+function viewToday(){
+  const n=UI.view, D=DAYS[n-1], locked=n>S.day;
+  const known=Object.keys(S.cards).length;
+  let h=`<header class="top"><h1>Day ${n} of 30</h1><p class="theme">${D.theme}</p></header>`;
+  h+=`<div class="stats"><div class="stat"><b>${streak()}</b><span>day streak</span></div><div class="stat"><b>${known}</b><span>words started</span></div><div class="stat"><b>${S.stars}</b><span>kids' stars</span></div></div>`;
+  h+=`<div class="chips" role="list">`;
+  for(let i=1;i<=30;i++){
+    const cls=["chip"]; if(dayDone(i)) cls.push("done"); if(i===S.day) cls.push("here"); if(i>S.day) cls.push("lock"); if(i===n) cls.push("sel");
+    h+=`<button class="${cls.join(" ")}" data-a="view" data-n="${i}" aria-label="Day ${i}${dayDone(i)?", finished":""}">${i}</button>`;
+  }
+  h+=`</div>`;
+  if(locked){
+    h+=`<div class="pad"><p>Day ${n} opens after you finish day ${S.day}.</p><p><button class="btn ghost" data-a="skip" data-n="${n}">Jump to day ${n}</button></p></div>`;
+    return h;
+  }
+  if(D.tip) h+=`<p class="tip">${D.tip}</p>`;
+  GRAMMAR.forEach((g,gi)=>{ if(g.day===n) h+=`<p class="tip">Grammar lesson for adults: <button class="lnk" data-a="gopen" data-i="${gi}">${g.title.en}</button></p>`; });
+
+  let study;
+  if(D.letters){
+    study=taskBlock(n,0,"Learn the letters",
+      `<p class="note">Tap a letter to see its sound and shapes. Say each name out loud, then write each letter three times.</p><div class="lt">${D.letters.map(l=>`<button class="ar" lang="ar" data-a="letter" data-ch="${l}" aria-label="Open letter ${l}">${l}</button>`).join("")}</div>`);
+  }else{
+    const t=D.study||"Read today's new words aloud from the Arabic only. Then check the transliteration. Ten minutes of reading aloud builds more than an hour of looking.";
+    study=taskBlock(n,0,n<=10?"Reading and vowels":"Read aloud",`<p class="note">${t}</p>`);
+  }
+  const wordsBody=D.words.length
+    ? `<p class="note">Tap an Arabic word to hear it.</p>${D.words.map(wordRow).join("")}`
+    : `<p class="note">Nothing new today. Spend the time on review.</p>`;
+  const quranBody=`<p class="note">${D.qf}</p>${D.quran.length?D.quran.map(wordRow).join(""):""}`;
+
+  h+=`<div class="list">`
+   +study
+   +taskBlock(n,1,D.words.length?`New words (${D.words.length})`:"No new words today",wordsBody)
+   +taskBlock(n,2,"Review your flashcards",`<p class="note">Ten minutes. Clear everything that is due.</p><button class="btn sm" data-a="tab" data-t="cards">Open flashcards</button>`)
+   +taskBlock(n,3,"Say these sentences, five times each",D.pat.map(wordRow).join(""))
+   +taskBlock(n,4,"Quran",quranBody)
+   +taskBlock(n,5,"With the kids",`<p class="note">${D.kids}</p><button class="btn sm ghost" data-a="tab" data-t="quiz">Open the kids' quiz</button>`)
+   +`</div>`;
+
+  if(dayDone(n) && n===S.day){
+    h+= n<30
+      ? `<div class="done-banner"><h2>Day ${n} finished</h2><p class="note">Good work. Tomorrow is better than today if you come back.</p><button class="btn wide" data-a="next">Start day ${n+1}</button></div>`
+      : `<div class="done-banner"><h2>You finished all 30 days</h2><p class="note">Keep your flashcards going every day, and book a tutor for speaking practice.</p></div>`;
+  }
+  h+=`<button class="reset" data-a="reset">${UI.resetArm?"Tap again to erase all progress":"Reset all progress"}</button>`;
+  return h;
+}
+
+function buildQueue(){
+  const now=Date.now();
+  const unlocked=ALL.filter(c=>c.day<=S.day);
+  const due=unlocked.filter(c=>S.cards[c.id] && S.cards[c.id].due<=now).sort((a,b)=>S.cards[a.id].due-S.cards[b.id].due).slice(0,30);
+  const fresh=unlocked.filter(c=>!S.cards[c.id]).slice(0,12);
+  const ids=due.concat(fresh).map(c=>c.id);
+  UI.q={queue:ids,shown:false,done:0,total:ids.length};
+}
+function cardById(id){return ALL.find(c=>c.id===id);}
+
+function viewCards(){
+  if(!UI.q) buildQueue();
+  const q=UI.q;
+  let h=`<header class="top"><h1>Flashcards</h1><p class="theme">${q.done} of ${q.total} done</p></header>`;
+  if(q.queue.length===0){
+    h+= q.total===0
+      ? `<div class="pad"><p>Nothing is due right now.</p><p class="note">Finish today's tasks to unlock new words, or come back later for reviews.</p></div>`
+      : `<div class="pad"><h2>Round finished</h2><p class="note">You went through ${q.done} cards. Cards you knew come back in 1 to 32 days. Cards you missed come back right away next round.</p><p><button class="btn" data-a="newq">Start another round</button></p></div>`;
+    return h;
+  }
+  const c=cardById(q.queue[0]);
+  h+=`<div class="fc"><span class="tag">${c.q?"Quran word, day "+c.day:"Day "+c.day}</span><div class="face"><span class="ar xl" lang="ar" dir="rtl">${c.ar}</span></div>`;
+  if(q.shown){
+    h+=`<div class="ans"><p class="tr2">${c.tr}</p><p class="en2">${c.en}</p><button class="btn sm ghost" data-a="speak" data-s="${c.ar}">Listen</button></div>`;
+  }
+  h+=`</div><div class="pad">`;
+  if(!q.shown){
+    h+=`<p class="note" style="margin-bottom:10px">Say it out loud and guess the meaning first.</p><button class="btn wide" data-a="reveal">Show answer</button>`;
+  }else{
+    h+=`<div class="row2"><button class="btn ghost" data-a="grade" data-g="0">Again</button><button class="btn" data-a="grade" data-g="1">Got it</button></div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+
+function formsOf(ch){
+  const Z="\u200D";
+  if(NONJOIN.includes(ch)) return [["Alone",ch],["After a letter",Z+ch]];
+  return [["Alone",ch],["Start",ch+Z],["Middle",Z+ch+Z],["End",Z+ch]];
+}
+function viewLetters(){
+  let h=`<header class="top"><h1>Letters</h1><p class="theme">28 letters, with sounds and shapes</p></header>`;
+  const i=UI.letter;
+  if(i===null){
+    h+=`<p class="tip">Tap a letter to see its name, sound, shapes and an example word.</p>`;
+  }else{
+    const L=LETTERS[i];
+    h+=`<div class="detail"><span class="ar big" lang="ar">${L[0]}</span><h2>${L[1]}</h2><p class="snd">${L[2]}</p><div class="forms">${formsOf(L[0]).map(f=>`<div><span class="ar" lang="ar">${f[1]}</span><small>${f[0]}</small></div>`).join("")}</div>${NONJOIN.includes(L[0])?`<p class="note" style="text-align:center">This letter never joins to the letter after it.</p>`:""}<div class="ex"><div class="wl"><span class="tr">${L[4]}</span><span class="en">${L[5]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${L[3]}" aria-label="Hear ${L[4]}">${L[3]}</button></div></div>`;
+  }
+  h+=`<div class="grid">${LETTERS.map((L,k)=>`<button class="lbtn ${k===i?"sel":""}" lang="ar" data-a="letter" data-i="${k}" aria-label="${L[1]}">${L[0]}</button>`).join("")}</div>`;
+  h+=`<div class="pad marks"><h2 style="font-size:20px;margin-bottom:6px">Vowels and marks</h2><p class="note">Shown on the letter ب (b).</p>${MARKS.map(m=>`<div class="wr"><div class="wl"><span class="tr">${m[1]}</span><span class="en">${m[2]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${m[0]}" aria-label="Hear ${m[1]}">${m[0]}</button></div>`).join("")}</div>`;
+  return h;
+}
+
+function gRow(r,L){
+  return `<div class="wr"><div class="wl"><span class="tr">${r[1]}</span><span class="en">${L==="fr"?r[3]:r[2]}</span></div><button class="ar" lang="ar" dir="rtl" data-a="speak" data-s="${r[0]}" aria-label="Hear ${r[1]}">${r[0]}</button></div>`;
+}
+function viewGrammar(){
+  const L=S.glang==="fr"?"fr":"en", T=GUI[L];
+  let h=`<header class="top"><h1>${T.title}</h1><p class="theme">${T.sub}</p></header>`;
+  h+=`<div class="seg" role="group" aria-label="Language"><button class="${L==="en"?"on":""}" data-a="glang" data-l="en">English</button><button class="${L==="fr"?"on":""}" data-a="glang" data-l="fr">Français</button></div>`;
+  h+=`<div class="glist">`;
+  GRAMMAR.forEach((g,i)=>{
+    const locked=g.day>S.day, open=UI.gopen===i && !locked;
+    h+=`<div class="gl"><button class="grow" data-a="gtoggle" data-i="${i}" aria-expanded="${open}" ${locked?"disabled":""}><span class="t">${i+1}. ${g.title[L]}</span><span class="d">${locked?T.opens+" "+g.day:T.day+" "+g.day}</span></button>`;
+    if(open){
+      h+=`<div class="gbody">`+g.rule[L].map(p=>`<p class="gp">${p}</p>`).join("");
+      if(g.table) h+=g.table.map(r=>gRow(r,L)).join("");
+      if(g.ex && g.ex.length) h+=`<h3 class="gh">${T.ex}</h3>`+g.ex.map(r=>gRow(r,L)).join("");
+      h+=`<p class="mist"><b>${T.mistake}.</b> ${g.mistake[L]}</p></div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+function makeIOpts(){
+  const q=UI.iq, Q=ISLAM[q.u].qs[q.i];
+  q.opts=shuffle(Q.o.map((t,k)=>({t,c:k===Q.a}))); q.picked=null;
+}
+function islamQuiz(i,T){
+  const u=ISLAM[i], q=UI.iq;
+  if(!q || q.u!==i){
+    const best=S.islam.best[i];
+    return `<button class="btn sm" data-a="iqstart" data-i="${i}">${T.start}</button>${best!=null?` <span class="note">${T.best}: ${best} / ${u.qs.length}</span>`:""}`;
+  }
+  if(q.i>=u.qs.length){
+    return `<p class="score" style="font-size:40px;margin:4px 0">${q.score} / ${u.qs.length}</p><p class="note">${S.stars} ${T.stars}</p><button class="btn sm" data-a="iqstart" data-i="${i}">${T.again}</button>`;
+  }
+  const Q=u.qs[q.i];
+  let h=`<p class="note">${q.i+1} / ${u.qs.length}</p><p style="font-weight:600;margin:4px 0 8px">${Q.q}</p><div class="opts" style="margin:8px 0">`;
+  q.opts.forEach((o,k)=>{
+    let cls="opt";
+    if(q.picked!==null){ if(o.c) cls+=" ok"; else if(k===q.picked) cls+=" bad"; }
+    h+=`<button class="${cls}" data-a="iqpick" data-i="${k}" ${q.picked!==null?"disabled":""}>${o.t}</button>`;
+  });
+  h+=`</div>`;
+  if(q.picked!==null){
+    h+=`<p class="note" style="margin-bottom:8px">${q.opts[q.picked].c?T.right:T.wrong}</p><button class="btn sm" data-a="iqnext">${q.i+1>=u.qs.length?T.see:T.next}</button>`;
+  }
+  return h;
+}
+function viewIslam(){
+  const L=S.glang==="fr"?"fr":"en", T=IUI[L];
+  const doneN=ISLAM.filter((u,i)=>S.islam.done[i]).length;
+  let h=`<header class="top"><h1>${T.title}</h1><p class="theme">${T.sub}</p></header>`;
+  h+=`<p class="tip">${T.note}</p>`;
+  h+=`<div class="seg" role="group" aria-label="Language"><button class="${L==="en"?"on":""}" data-a="glang" data-l="en">English</button><button class="${L==="fr"?"on":""}" data-a="glang" data-l="fr">Français</button></div>`;
+  h+=`<p class="note" style="padding:0 20px 10px">${T.progress(doneN,ISLAM.length)}</p>`;
+  h+=`<div class="glist">`;
+  ISLAM.forEach((u,i)=>{
+    const open=UI.iopen===i, fin=!!S.islam.done[i];
+    h+=`<div class="gl"><button class="grow" data-a="itoggle" data-i="${i}" aria-expanded="${open}"><span class="t">${i+1}. ${u.title[L]}</span><span class="d">${fin?"✓ "+T.fin:""}</span></button>`;
+    if(open){
+      h+=`<div class="gbody">`+u.text[L].map(p=>`<p class="gp">${p}</p>`).join("");
+      h+=`<h3 class="gh">${T.arabic}</h3>`+u.rows.map(r=>gRow(r,L)).join("");
+      if(u.link) h+=`<p class="mist">${u.link[L]}</p>`;
+      h+=`<h3 class="gh">${T.talk}</h3><p class="gp">${u.talk[L]}</p>`;
+      h+=`<h3 class="gh">${T.check}</h3><div>${islamQuiz(i,T)}</div>`;
+      h+=`<p style="margin-top:18px"><button class="btn sm ghost" data-a="idone" data-i="${i}">${fin?T.undo:T.done}</button></p></div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+function makeOpts(){
+  const q=UI.quiz, c=q.qs[q.i];
+  const pool=shuffle(ALL.filter(x=>x.day<=S.day && x.en!==c.en));
+  const seen=new Set([c.en]), opts=[c];
+  for(const x of pool){ if(opts.length>=4) break; if(!seen.has(x.en)){seen.add(x.en); opts.push(x);} }
+  q.opts=shuffle(opts); q.picked=null;
+}
+function viewQuiz(){
+  let h=`<header class="top"><h1>Kids' quiz</h1><p class="theme">Pick the meaning. ${S.stars} stars so far.</p></header>`;
+  const q=UI.quiz;
+  if(!q){
+    h+=`<div class="pad"><p>Ten words from the days you have unlocked. Every right answer earns a star.</p><p><button class="btn wide" data-a="qstart">Start the quiz</button></p></div>`;
+    return h;
+  }
+  if(q.i>=q.qs.length){
+    h+=`<div class="pad"><p class="score">${q.score} of ${q.qs.length}</p><p style="text-align:center">${q.score===q.qs.length?"Perfect round.":q.score>=7?"Great work.":"Keep going. Every round helps."} You earned ${q.score} stars.</p><p style="margin-top:14px"><button class="btn wide" data-a="qstart">Play again</button></p></div>`;
+    return h;
+  }
+  const c=q.qs[q.i];
+  h+=`<div class="q"><p class="note" style="margin-bottom:8px">Question ${q.i+1} of ${q.qs.length}</p><div class="qword"><span class="ar" lang="ar" dir="rtl">${c.ar}</span><button class="btn sm ghost" data-a="speak" data-s="${c.ar}">Listen</button></div><div class="opts">`;
+  q.opts.forEach((o,k)=>{
+    let cls="opt";
+    if(q.picked!==null){ if(o===c) cls+=" ok"; else if(k===q.picked) cls+=" bad"; }
+    h+=`<button class="${cls}" data-a="qpick" data-i="${k}" ${q.picked!==null?"disabled":""}>${o.en}</button>`;
+  });
+  h+=`</div>`;
+  if(q.picked!==null){
+    h+=`<p style="margin-bottom:10px"><b>${c.tr}</b> means ${c.en}.</p><button class="btn wide" data-a="qnext">${q.i+1>=q.qs.length?"See my score":"Next question"}</button>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+
+function nav(){
+  const t=[["today","Today"],["cards","Cards"],["letters","Letters"],["grammar","Grammar"],["islam","Islam"],["quiz","Quiz"]];
+  return `<nav aria-label="Sections"><div class="in">${t.map(x=>`<button class="${UI.tab===x[0]?"on":""}" data-a="tab" data-t="${x[0]}" ${UI.tab===x[0]?'aria-current="page"':""}>${x[1]}</button>`).join("")}</div></nav>`;
+}
+function render(){
+  const v={today:viewToday,cards:viewCards,letters:viewLetters,grammar:viewGrammar,islam:viewIslam,quiz:viewQuiz}[UI.tab]();
+  $app.innerHTML=v+nav();
+}
+
+/* ---------- ACTIONS ---------- */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-a]"); if(!el) return;
+  const a=el.dataset.a;
+  if(a==="speak"){ speak(el.dataset.s); return; }
+  if(a!=="reset") UI.resetArm=false;
+  switch(a){
+    case "tab": UI.tab=el.dataset.t; if(UI.tab==="cards") UI.q=null; window.scrollTo(0,0); break;
+    case "view": UI.view=+el.dataset.n; break;
+    case "skip": S.day=+el.dataset.n; UI.view=S.day; UI.q=null; save(); break;
+    case "next": S.day=Math.min(S.day+1,30); UI.view=S.day; UI.q=null; save(); window.scrollTo(0,0); break;
+    case "toggle": { const k=el.dataset.k; S.tasks[k]=!S.tasks[k]; if(S.tasks[k]) markActive(); save(); break; }
+    case "reveal": UI.q.shown=true; break;
+    case "grade": {
+      const q=UI.q, id=q.queue.shift(), ok=el.dataset.g==="1";
+      const c=S.cards[id]||{box:0,due:0};
+      if(ok){ c.box=Math.min(c.box+1,6); c.due=Date.now()+INTERVALS[c.box]*864e5; q.done++; }
+      else { c.box=0; c.due=Date.now(); q.queue.push(id); }
+      S.cards[id]=c; q.shown=false; markActive(); save(); break;
+    }
+    case "newq": buildQueue(); break;
+    case "letter": {
+      if(el.dataset.ch){ UI.letter=LETTERS.findIndex(L=>L[0]===el.dataset.ch); UI.tab="letters"; window.scrollTo(0,0); }
+      else { UI.letter=+el.dataset.i; window.scrollTo(0,0); }
+      break;
+    }
+    case "qstart": {
+      const pool=ALL.filter(c=>c.day<=S.day);
+      UI.quiz={qs:shuffle(pool).slice(0,10),i:0,score:0,opts:null,picked:null};
+      makeOpts(); break;
+    }
+    case "qpick": {
+      const q=UI.quiz; if(q.picked!==null) break;
+      q.picked=+el.dataset.i;
+      if(q.opts[q.picked]===q.qs[q.i]) q.score++;
+      break;
+    }
+    case "qnext": {
+      const q=UI.quiz; q.i++;
+      if(q.i>=q.qs.length){ S.stars+=q.score; markActive(); save(); }
+      else makeOpts();
+      break;
+    }
+    case "gopen": UI.tab="grammar"; UI.gopen=+el.dataset.i; window.scrollTo(0,0); break;
+    case "gtoggle": { const i=+el.dataset.i; UI.gopen=UI.gopen===i?null:i; break; }
+    case "glang": S.glang=el.dataset.l; save(); break;
+    case "itoggle": { const i=+el.dataset.i; UI.iopen=UI.iopen===i?null:i; UI.iq=null; break; }
+    case "idone": { const i=+el.dataset.i; S.islam.done[i]=!S.islam.done[i]; if(S.islam.done[i]) markActive(); save(); break; }
+    case "iqstart": UI.iq={u:+el.dataset.i,i:0,score:0,opts:null,picked:null}; makeIOpts(); break;
+    case "iqpick": {
+      const q=UI.iq; if(!q || q.picked!==null) break;
+      q.picked=+el.dataset.i; if(q.opts[q.picked].c) q.score++;
+      break;
+    }
+    case "iqnext": {
+      const q=UI.iq; q.i++;
+      if(q.i>=ISLAM[q.u].qs.length){
+        const prev=S.islam.best[q.u]||0;
+        if(q.score>prev){ S.stars+=q.score-prev; S.islam.best[q.u]=q.score; }
+        else if(S.islam.best[q.u]==null){ S.islam.best[q.u]=q.score; }
+        markActive(); save();
+      } else makeIOpts();
+      break;
+    }
+    case "reset":
+      if(!UI.resetArm){ UI.resetArm=true; break; }
+      S.day=1; S.tasks={}; S.cards={}; S.stars=0; S.active=[]; S.islam={done:{},best:{}}; UI.iopen=null; UI.iq=null; UI.view=1; UI.q=null; UI.quiz=null; UI.resetArm=false; save(); window.scrollTo(0,0);
+      break;
+  }
+  render();
+});
+
+/* ---------- OFFLINE SUPPORT ---------- */
+if("serviceWorker" in navigator && /^https?:/.test(location.protocol)){
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
+
+/* ---------- START ---------- */
+(async()=>{
+  await Promise.race([load(), new Promise(r=>setTimeout(r,1500))]);
+  UI.view=Math.min(Math.max(S.day,1),30);
+  render();
+})();
+</script>
+</body>
+</html>
